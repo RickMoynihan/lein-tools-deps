@@ -1,0 +1,1 @@
+src:/Users/rick/.m2/repository/org/clojure/clojure/1.9.0/clojure-1.9.0.jar:/Users/rick/.m2/repository/criterium/criterium/0.4.4/criterium-0.4.4.jar:/Users/rick/.m2/repository/org/clojure/spec.alpha/0.1.143/spec.alpha-0.1.143.jar:/Users/rick/.m2/repository/org/clojure/core.specs.alpha/0.1.24/core.specs.alpha-0.1.24.jar
