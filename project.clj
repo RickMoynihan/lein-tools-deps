@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [^:source-dep [org.clojure/tools.deps.alpha "0.2.197-SNAPSHOT"]]
+  :dependencies [[org.clojure/tools.deps.alpha "0.2.197-SNAPSHOT"]]
 
-  :plugins [[thomasa/mranderson "0.4.8"]]
+  ;:plugins [[thomasa/mranderson "0.4.8"]]
   :eval-in-leiningen true)

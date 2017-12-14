@@ -13,7 +13,7 @@
   ;; Paths
   ;;   Directories in the current project to include in the classpath
 
-  ;; :paths ["src"]
+ :paths ["src" "test"]
 
   ;; External dependencies
  
