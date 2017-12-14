@@ -1,14 +1,15 @@
-# foo
+# An example project demonstrating lein-tools-deps
 
-A Clojure library designed to ... well, that part is up to you.
+This is a test project for lein-tools-deps.
 
 ## Usage
 
-FIXME
+Simply run `lein repl` and watch it download the `criterium`
+dependency specified in `deps.edn`.
 
 ## License
 
-Copyright © 2017 FIXME
+Copyright © 2017 Rick Moynihan
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
