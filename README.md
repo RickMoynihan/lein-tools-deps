@@ -16,6 +16,11 @@ Then set `:tools/deps` to specify which `deps.edn` files to resolve, we recommen
 
 `:tools/deps [:system :home :project]`
 
+The keywords `:system`, `:home` and `:project` will be resolved by the
+plugin.  You can also supply your own paths as strings, e.g.
+
+`:tools/deps [:system :home :project "../src/deps.edn"]`
+
 You can now delete your `:dependencies` vector from `project.clj`.
 
 ## Project Status
