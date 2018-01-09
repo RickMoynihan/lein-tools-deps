@@ -6,11 +6,13 @@
             [leiningen.core.project :as p]
             [leiningen.core.main :as lein]))
 
-(require 'clojure.tools.deps.alpha.providers.maven)
-(require 'clojure.tools.deps.alpha.providers.git)
-(require 'clojure.tools.deps.alpha.providers.local)
+#_(require 'clojure.tools.deps.alpha.extensions.deps) ;; broken ns in v0.3.260 should be fixed soon...
+(require 'clojure.tools.deps.alpha.extensions.git)
+(require 'clojure.tools.deps.alpha.extensions.local)
+(require 'clojure.tools.deps.alpha.extensions.maven)
 
-(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.273/deps.edn"))
+
+(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.297/deps.edn"))
 
 (def deps-file (io/file "deps.edn"))
 
@@ -27,7 +29,7 @@
 
 (defn canonicalise-dep-refs [dep-refs]
   (->> dep-refs
-       (map location->dep-paths)
+       (map #(location->dep-paths % %))
        (map io/file)))
 
 (defn leinize [[proj coord]]
@@ -36,14 +38,14 @@
 (defn resolve-deps [deps]
   (let [all-deps (->> deps
                       (filter #(.exists %)))
+
         tdeps-map (-> all-deps
                       reader/read-deps
                       (deps/resolve-deps {}))
-        
-        resolved-deps (deps/resolve-deps tdeps-map {})
-        lein-deps-vector (->> resolved-deps
-                              (mapv leinize))
 
+        lein-deps-vector (->> tdeps-map
+                              (mapv leinize))
+        
         project-deps {:dependencies lein-deps-vector }]
 
     project-deps))
@@ -61,7 +63,7 @@
     project))
 
 (comment
-  (resolve-deps (canonicalise-dep-refs default-deps))
+  (resolve-deps (canonicalise-dep-refs [:system :home "example/deps.edn"]))
 
   
   

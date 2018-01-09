@@ -3,7 +3,7 @@
   :url "https://github.com/RickMoynihan/lein-tools-deps"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/tools.deps.alpha "0.2.197-SNAPSHOT"]]
+  :dependencies [[org.clojure/tools.deps.alpha "0.3.260"]]
 
   ;:plugins [[thomasa/mranderson "0.4.8"]]
   :eval-in-leiningen true)
