@@ -1,18 +1,14 @@
 (ns lein-tools-deps.plugin
-  (:require [clojure.tools.deps.alpha :as deps]
-            [clojure.tools.deps.alpha.reader :as reader]
-            [clojure.java.io :as io]
-            [clojure.edn :as edn]
-            [leiningen.core.project :as p]
-            [leiningen.core.main :as lein]))
+  (:require [clojure.java.io :as io]
+            [clojure.tools.deps.alpha :as deps]
+            [clojure.tools.deps.alpha.reader :as reader]))
 
-#_(require 'clojure.tools.deps.alpha.extensions.deps) ;; broken ns in v0.3.260 should be fixed soon...
+(require 'clojure.tools.deps.alpha.extensions.deps)
 (require 'clojure.tools.deps.alpha.extensions.git)
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
-
-(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.297/deps.edn"))
+(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.236/deps.edn"))
 
 (def deps-file (io/file "deps.edn"))
 
@@ -45,11 +41,10 @@
 
         lein-deps-vector (->> tdeps-map
                               (mapv leinize))
-        
-        project-deps {:dependencies lein-deps-vector }]
+
+        project-deps {:dependencies lein-deps-vector}]
 
     project-deps))
-
 
 (defn middleware
   "Inject dependencies from deps.edn files into the
@@ -65,6 +60,5 @@
 (comment
   (resolve-deps (canonicalise-dep-refs [:system :home "example/deps.edn"]))
 
-  
-  
-  )
+  (canonicalise-dep-refs [:system :home "example/deps.edn"])
+)
