@@ -9,17 +9,15 @@
 ;; For all attributes other than :paths, these config files are merged left to right.
 ;; Only the last :paths is kept and others are dropped.
 
-{
-  ;; Paths
+{;; Paths
   ;;   Directories in the current project to include in the classpath
 
  :paths ["src" "test"]
 
   ;; External dependencies
 
-  :deps {lein-tools-deps {:mvn/version "0.1.0-SNAPSHOT"}
-         criterium/criterium {:mvn/version "0.4.4"}}
-
+ :deps {lein-tools-deps {:mvn/version "0.1.0-SNAPSHOT"}
+        criterium {:mvn/version "0.4.4"}}
 
   ;; Aliases
   ;;   resolve-deps aliases (-R) affect dependency resolution, options:
@@ -30,11 +28,10 @@
   ;;     :extra-paths - vector of additional paths to add to the classpath
   ;;     :classpath-overrides - map of lib to path that overrides the result of resolving deps
 
- :aliases {
-           :1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
+ :aliases {:1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
            :1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
            :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
-           :bench {:extra-deps {criterium/criterium {:mvn/version "0.4.4"}}}}}
+           :bench {:extra-deps {criterium {:mvn/version "0.4.4"}}}}}
 
   ;; :aliases {
   ;;   :deps {:extra-deps {org.clojure/tools.deps.alpha {:mvn/version "0.2.167"}}}

@@ -1,6 +1,7 @@
 (ns lein-tools-deps.plugin
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
+            [clojure.tools.deps.alpha.util.maven :as mvn]
             [clojure.pprint :as pp]
             (clojure.tools.deps.alpha.extensions
              [deps :as deps+]
@@ -9,9 +10,17 @@
              [maven :as maven])
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log])
   ;  [leiningen.core.project :as p]
   ;  [leiningen.core.main :as lein]))
+ (:import [org.eclipse.aether RepositorySystem RepositorySystemSession]
+          [org.eclipse.aether.spi.locator ServiceLocator]))
+
+(def locator @mvn/the-locator)
+(log/debug "locator" locator (.getService locator RepositorySystem))
+
+(def system (mvn/make-system))
+(log/debug "system" system)
 
 (def system-deps-file (io/file "/usr/local/lib/clojure/deps.edn"))
 
