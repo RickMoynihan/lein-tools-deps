@@ -1,15 +1,17 @@
 (ns lein-tools-deps.plugin
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
+            [clojure.pprint :as pp]
             (clojure.tools.deps.alpha.extensions
              [deps :as deps+]
              [git :as git]
              [local :as local]
              [maven :as maven])
             [clojure.java.io :as io]
-            [clojure.edn :as edn]))
-          ;  [leiningen.core.project :as p]
-          ;  [leiningen.core.main :as lein]))
+            [clojure.edn :as edn]
+            [clojure.tools.logging :as log]))
+  ;  [leiningen.core.project :as p]
+  ;  [leiningen.core.main :as lein]))
 
 (def system-deps-file (io/file "/usr/local/lib/clojure/deps.edn"))
 
@@ -35,16 +37,15 @@
   [proj (:mvn/version coord)])
 
 (defn resolve-deps [deps]
-  (let [all-deps (->> deps
-                      (filter #(.exists %)))
-
-        tdeps-map (-> all-deps
-                      reader/read-deps
-                      (deps/resolve-deps {:verbose true}))
-
-        lein-deps-vector (->> tdeps-map
-                              (mapv leinize))
-
+  (log/debug "deps.edn files" deps)
+  (let [all-deps (filter #(.exists %) deps)
+        _ (log/debug "exists" all-deps)
+        deps-map (reader/read-deps all-deps)
+        _ (pp/pprint deps-map)
+        tdeps-map (deps/resolve-deps deps-map {:verbose true})
+        _ (log/debug "resolved" tdeps-map)
+        lein-deps-vector (mapv leinize tdeps-map)
+        _ (log/debug "leinized" lein-deps-vector)
         project-deps {:dependencies lein-deps-vector}]
 
     project-deps))
@@ -60,7 +61,3 @@
          resolve-deps
          (merge project))
     project))
-
-(comment
-  (resolve-deps (canonicalise-dep-refs [:system :home "example/deps.edn"]))
-  (canonicalise-dep-refs [:system :home "example/deps.edn"])
