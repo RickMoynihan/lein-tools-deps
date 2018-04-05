@@ -5,9 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/tools.deps.alpha "0.5.418-SNAPSHOT"]
                  [org.clojure/tools.logging "0.2.3"]
-                 [ch.qos.logback/logback-classic "1.0.13"]
-                 [org.eclipse.aether/aether-api "0.9.0.M2"]
-                 [org.eclipse.aether/aether-util "0.9.0.M2"]]
+                 [ch.qos.logback/logback-classic "1.0.13"]]
   :exclusions [org.slf4j/slf4j-nop]
 
   ;:plugins [[thomasa/mranderson "0.4.8"]]

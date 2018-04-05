@@ -1,4 +1,2 @@
 {:paths ["src"]
- :deps {org.clojure/tools.deps.alpha {:mvn/version "0.5.418-SNAPSHOT"}
-        org.eclipse.aether/aether-api {:mvn/version "0.9.0.M2"}
-        org.eclipse.aether/aether-util {:mvn/version "0.9.0.M2"}}}
+ :deps {org.clojure/tools.deps.alpha {:mvn/version "0.5.418-SNAPSHOT"}}}
