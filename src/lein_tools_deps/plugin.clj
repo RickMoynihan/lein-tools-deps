@@ -1,29 +1,28 @@
 (ns lein-tools-deps.plugin
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
+            (clojure.tools.deps.alpha.extensions
+             [deps :as deps+]
+             [git :as git]
+             [local :as local]
+             [maven :as maven])
             [clojure.java.io :as io]
-            [clojure.edn :as edn]
-            [leiningen.core.project :as p]
-            [leiningen.core.main :as lein]))
+            [clojure.edn :as edn]))
+          ;  [leiningen.core.project :as p]
+          ;  [leiningen.core.main :as lein]))
 
-#_(require 'clojure.tools.deps.alpha.extensions.deps) ;; broken ns in v0.3.260 should be fixed soon...
-(require 'clojure.tools.deps.alpha.extensions.git)
-(require 'clojure.tools.deps.alpha.extensions.local)
-(require 'clojure.tools.deps.alpha.extensions.maven)
+(def system-deps-file (io/file "/usr/local/lib/clojure/deps.edn"))
 
+(def project-deps-file (io/file "deps.edn"))
 
-(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.297/deps.edn"))
-
-(def deps-file (io/file "deps.edn"))
-
-(defn home-deps []
-  (io/file (System/getProperty "user.home") ".clojure" deps-file))
+(defn home-deps-file []
+  (io/file (System/getProperty "user.home") ".clojure" (io/file "deps.edn")))
 
 (def location->dep-paths
   "Map deps.edn location names to paths"
-  {:system system-deps
-   :home (home-deps)
-   :project deps-file})
+  {:system system-deps-file
+   :home (home-deps-file)
+   :project project-deps-file})
 
 (def default-deps [:system :home :project])
 
@@ -41,12 +40,12 @@
 
         tdeps-map (-> all-deps
                       reader/read-deps
-                      (deps/resolve-deps {}))
+                      (deps/resolve-deps {:verbose true}))
 
         lein-deps-vector (->> tdeps-map
                               (mapv leinize))
-        
-        project-deps {:dependencies lein-deps-vector }]
+
+        project-deps {:dependencies lein-deps-vector}]
 
     project-deps))
 
@@ -64,7 +63,4 @@
 
 (comment
   (resolve-deps (canonicalise-dep-refs [:system :home "example/deps.edn"]))
-
-  
-  
-  )
+  (canonicalise-dep-refs [:system :home "example/deps.edn"])
