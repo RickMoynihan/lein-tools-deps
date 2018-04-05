@@ -3,7 +3,7 @@
   :url "https://github.com/RickMoynihan/lein-tools-deps"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/tools.deps.alpha "0.5.418-SNAPSHOT"]
+  :dependencies [[org.clojure/tools.deps.alpha "0.5.417"]
                  [org.clojure/tools.logging "0.2.3"]
                  [ch.qos.logback/logback-classic "1.0.13"]
                  [org.apache.maven/maven-resolver-provider "3.5.2"]
