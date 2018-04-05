@@ -2,7 +2,8 @@
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
             [clojure.tools.deps.alpha.util.maven :as mvn]
-            [clojure.pprint :as pp]
+            (clojure [pprint :as pp]
+                     [reflect :as cr])
             (clojure.tools.deps.alpha.extensions
              [deps :as deps+]
              [git :as git]
@@ -10,14 +11,9 @@
              [maven :as maven])
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]))
   ;  [leiningen.core.project :as p]
   ;  [leiningen.core.main :as lein]))
- (:import [org.eclipse.aether RepositorySystem RepositorySystemSession]
-          [org.eclipse.aether.spi.locator ServiceLocator]))
-
-(def locator @mvn/the-locator)
-(log/debug "locator" locator (.getService locator RepositorySystem))
 
 (def system (mvn/make-system))
 (log/debug "system" system)
@@ -48,13 +44,9 @@
 (defn resolve-deps [deps]
   (log/debug "deps.edn files" deps)
   (let [all-deps (filter #(.exists %) deps)
-        _ (log/debug "exists" all-deps)
         deps-map (reader/read-deps all-deps)
-        _ (pp/pprint deps-map)
-        tdeps-map (deps/resolve-deps deps-map {:verbose true})
-        _ (log/debug "resolved" tdeps-map)
+        tdeps-map (deps/resolve-deps deps-map {})
         lein-deps-vector (mapv leinize tdeps-map)
-        _ (log/debug "leinized" lein-deps-vector)
         project-deps {:dependencies lein-deps-vector}]
 
     project-deps))
