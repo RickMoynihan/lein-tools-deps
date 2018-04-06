@@ -2,6 +2,7 @@
 (require '[lein-tools-deps.plugin :as pi] :reload)
 (require '[clojure.tools.deps.alpha.reader :as reader] :reload)
 (require '[clojure.tools.deps.alpha :as deps] :reload)
+(require '[clojure.pprint :as pp])
 
 (def deps (map second pi/location->dep-paths))
 (def all-deps (->> deps (filter #(.exists %))))
