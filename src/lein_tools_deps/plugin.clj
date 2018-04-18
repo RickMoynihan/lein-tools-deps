@@ -1,6 +1,7 @@
 (ns lein-tools-deps.plugin
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
+	    [org.satta.glob :as glob]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [leiningen.core.project :as p]
@@ -11,8 +12,12 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
-
-(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.297/deps.edn"))
+; https://github.com/RickMoynihan/lein-tools-deps/issues/6
+(defn system-deps-file []
+  (first
+   (filter #(.exists %)
+     (into [(io/file "/usr/local/lib/clojure/deps.edn")]
+        (glob/glob "/usr/local/Cellar/clojure/1.9.*/deps.edn")))))
 
 (def deps-file (io/file "deps.edn"))
 
@@ -21,7 +26,7 @@
 
 (def location->dep-paths
   "Map deps.edn location names to paths"
-  {:system system-deps
+  {:system (system-deps-file)
    :home (home-deps)
    :project deps-file})
 
