@@ -1,2 +1,7 @@
-{:paths ["src"]
- :deps {org.clojure/tools.deps.alpha {:mvn/version "0.5.417"}}}
+{
+ :paths ["src"]
+
+ :deps {
+        org.clojure/tools.deps.alpha {:mvn/version "0.5.417"}
+        }
+}
