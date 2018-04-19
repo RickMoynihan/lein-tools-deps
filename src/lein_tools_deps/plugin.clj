@@ -6,7 +6,8 @@
             [leiningen.core.project :as p]
             [leiningen.core.main :as lein]))
 
-#_(require 'clojure.tools.deps.alpha.extensions.deps) ;; broken ns in v0.3.260 should be fixed soon...
+;; load extensions
+(require 'clojure.tools.deps.alpha.extensions.deps)
 (require 'clojure.tools.deps.alpha.extensions.git)
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
