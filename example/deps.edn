@@ -19,6 +19,7 @@
  
   :deps {
          criterium/criterium {:mvn/version "0.4.4"}
+         org.clojure/tools.nrepl {:mvn/version "0.2.12"} 
   }
 
   ;; Aliases
