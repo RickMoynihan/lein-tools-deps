@@ -27,6 +27,8 @@ You can now delete your `:dependencies` vector from `project.clj`.
 
 **VERY ALPHA**
 
+[![Build Status](https://travis-ci.org/RickMoynihan/lein-tools-deps.svg?branch=master)](https://travis-ci.org/RickMoynihan/lein-tools-deps)
+
 This is almost entirely untested, so don't rely on it yet.  PRs &
 ideas for future development welcome.
 
