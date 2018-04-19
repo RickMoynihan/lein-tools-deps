@@ -2,7 +2,6 @@
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
             [clojure.java.io :as io]
-            [clojure.edn :as edn]
             [leiningen.core.project :as p]
             [leiningen.core.main :as lein]))
 
@@ -36,16 +35,20 @@
 (defn leinize [[proj coord]]
   [proj (:mvn/version coord)])
 
-(defn resolve-deps [deps]
-  (let [all-deps (->> deps
-                      (filter #(.exists %)))
+(defn resolve-deps
+  "Takes a seq of java.io.File objects pointing to deps.edn files
+  and merges them all before resolving their dependencies.
+
+  Returns a {:dependencies [coordinates]} datastructure suitable for
+  meta-merging into a lein project map."
+  [deps]
+  (let [all-deps (filter #(.exists %) deps)
 
         tdeps-map (-> all-deps
                       reader/read-deps
                       (deps/resolve-deps {}))
 
-        lein-deps-vector (->> tdeps-map
-                              (mapv leinize))
+        lein-deps-vector (mapv leinize tdeps-map)
         
         project-deps {:dependencies lein-deps-vector }]
 
