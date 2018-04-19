@@ -11,18 +11,18 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
+(def config-files (:config-files (reader/clojure-env)))
 
-(def system-deps (io/file "/usr/local/Cellar/clojure/1.9.0.297/deps.edn"))
+(def system-deps (io/file (config-files 0)))
 
-(def deps-file (io/file "deps.edn"))
+(def home-deps (io/file (config-files 1)))
 
-(defn home-deps []
-  (io/file (System/getProperty "user.home") ".clojure" deps-file))
+(def deps-file (io/file (config-files 2)))
 
 (def location->dep-paths
   "Map deps.edn location names to paths"
   {:system system-deps
-   :home (home-deps)
+   :home home-deps
    :project deps-file})
 
 (def default-deps [:system :home :project])
