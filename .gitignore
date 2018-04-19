@@ -7,7 +7,8 @@ pom.xml.asc
 *.jar
 *.class
 *.iml
-/.lein-*
+.lein-**
 .nrepl-port
 .hgignore
 .hg/
+example/target/*
