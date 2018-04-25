@@ -44,6 +44,7 @@
                     (:deps/manifest dep-val)))
 
 (defmethod leinize :mvn [[artifact info]]
+  ;; Thanks to @seancorfield and boot-tools-deps for this snippet
   (transduce cat conj [artifact (:mvn/version info)]
              (select-keys info
                           [:classifier
