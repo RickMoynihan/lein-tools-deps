@@ -17,7 +17,8 @@
 
 (def home-deps (io/file (config-files 1)))
 
-(def deps-file (io/file (config-files 2)))
+(def deps-file (when (contains? config-files 2)
+                 (io/file (config-files 2))))
 
 (def location->dep-paths
   "Map deps.edn location names to paths"
