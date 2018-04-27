@@ -36,9 +36,6 @@
   (-> deps-files
       reader/read-deps))
 
-#_(defn leinize [[proj coord]]
-  [proj (:mvn/version coord)])
-
 (defmulti leinize (fn [[dep-key dep-val]]
                     (:deps/manifest dep-val)))
 
