@@ -34,8 +34,7 @@
 
 (defn read-all-deps [deps-files]
   (-> deps-files
-      reader/read-deps
-      (deps/resolve-deps {})))
+      reader/read-deps))
 
 #_(defn leinize [[proj coord]]
   [proj (:mvn/version coord)])
@@ -65,12 +64,12 @@
                       (filter-by-manifest :mvn)
                       (mapv leinize))})
 
-(defn lein-source-paths [tdeps]
+(defn lein-source-paths [merged-deps tdeps]
   {:source-paths (->> tdeps
                       (filter-by-manifest :deps)
                       (mapv leinize)
                       (apply concat)
-                      vec)})
+                      (into (:paths merged-deps)))})
 
 (defn resolve-deps
   "Takes a seq of java.io.File objects pointing to deps.edn files
@@ -80,11 +79,10 @@
   meta-merging into a lein project map."
   [deps]
   (let [all-deps (filter #(.exists %) deps)
-
-        tdeps-map (read-all-deps all-deps)]
-
+        merged-deps (read-all-deps all-deps)
+        tdeps-map (deps/resolve-deps merged-deps {})]
     (merge (lein-dependencies tdeps-map)
-           (lein-source-paths tdeps-map))))
+           (lein-source-paths merged-deps tdeps-map))))
 
 
 (defn middleware
