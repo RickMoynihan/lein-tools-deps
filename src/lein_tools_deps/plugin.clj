@@ -86,8 +86,7 @@
 
 
 (defn middleware
-  "Inject dependencies from deps.edn files into the
-  leiningen :dependencies vector."
+  "Inject relevant keys from deps.edn files into the leiningen project map."
   [{deps-files :tools/deps :as project}]
   (if (seq deps-files)
     (->> deps-files
