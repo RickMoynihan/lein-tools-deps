@@ -7,19 +7,29 @@
 ; of lein-tools-deps.plugin and at least we can know if it builds successfully.
 
 (deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-refs [:system :home "example/deps.edn"])]
+  (let [canonicalised-files (sut/canonicalise-dep-locs [:system "test-cases/basic-deps.edn"])]
     (is (every? #(instance? java.io.File %) canonicalised-files))
     (is (every? #(.exists %) canonicalised-files))
-    (is (= 3 (count canonicalised-files)))))
+    (is (= 2 (count canonicalised-files))
+        ":system and supplied file == 2 files")))
 
-
-(deftest resolve-deps
-  (let [deps (sut/resolve-deps (sut/canonicalise-dep-refs [:system :home "example/deps.edn"]))]
+(deftest resolve-paths-to-source-paths
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
-    (is (every? #{'[org.clojure/clojure "1.9.0"]
-                  '[criterium/criterium "0.4.4"]
-                  '[org.clojure/tools.nrepl "0.2.12"]
-                  '[org.clojure/spec.alpha "0.1.143"]
-                  '[org.clojure/core.specs.alpha "0.1.24"]}
-                (:dependencies deps)))))
+    (is (= ["src" "test"] (:source-paths deps)))))
+
+;; TODO fix this test up properly.
+#_(deftest resolve-local-root-to-source-paths
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/local-root-deps.edn"]))]
+    (is (map? deps))
+    (is (= ["src" "test"] (:source-paths deps)))))
+
+(deftest resolve-deps-git-to-dependencies
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/git-deps.edn"]))]
+    (is (map? deps))
+    (let [dependencies (:dependencies deps)]
+      (is (>= (count dependencies) 2))
+      (is (every? #{'[clj-time/clj-time "0.14.2"]
+                    '[joda-time/joda-time "2.9.7"]}
+                  dependencies)))))
 

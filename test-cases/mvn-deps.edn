@@ -1,0 +1,7 @@
+{
+ :deps {
+        criterium/criterium {:mvn/version "0.4.4"}
+        ;;github-puredanger/demo-deps {:git/url "https://github.com/puredanger/demo-deps" :sha "19d387dc11d804ab955207a263dfba5dbd15bf2c"}
+        ;;local-root/test-dep {:local/root "./local-root"}
+        }
+ }
