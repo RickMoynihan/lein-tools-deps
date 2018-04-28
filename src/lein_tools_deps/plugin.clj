@@ -98,8 +98,4 @@
 (comment
   (read-all-deps (canonicalise-dep-locs [:system :home "example/deps.edn"]))
 
-  (resolve-deps (canonicalise-dep-locs [:system :home "example/deps.edn" "foo"]))
-
-  
-  
-  )
+  (resolve-deps (canonicalise-dep-locs [:system :home "example/deps.edn" "foo"])))
