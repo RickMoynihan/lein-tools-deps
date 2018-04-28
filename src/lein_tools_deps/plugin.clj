@@ -15,8 +15,9 @@
   "Returns a function mapping from a loc(ation)
   keyword (either :system, :home or :project) to an absolute file
   location.  If the value is a string it is returned as is."
-  []
-  (let [[system-deps home-deps project-deps] (:config-files (reader/clojure-env))]
+  [project-root]
+  (let [[system-deps home-deps project-deps] (:config-files (reader/clojure-env))
+        project-deps (or project-deps (io/file project-root "deps.edn"))]
     (fn [i]
       (if (string? i)
         i
@@ -24,8 +25,8 @@
           :home home-deps
           :project project-deps} i)))))
 
-(defn canonicalise-dep-locs [dep-refs]
-  (let [location->dep-path (make-dep-loc-lookup)]
+(defn canonicalise-dep-locs [project-root dep-refs]
+  (let [location->dep-path (make-dep-loc-lookup project-root)]
     (->> dep-refs
          (map #(location->dep-path %))
          (map io/file))))
@@ -88,7 +89,7 @@
   (if (seq deps-files)
     (if (every? loc-or-string? deps-files)
       (->> deps-files
-           canonicalise-dep-locs
+           (canonicalise-dep-locs (:root project))
            resolve-deps
            (merge project))
       (do (lein/warn  "Every element in :tools/deps must either be a file-path string or one of the locations :system, :project, or :home.")
@@ -96,6 +97,6 @@
     project))
 
 (comment
-  (read-all-deps (canonicalise-dep-locs [:system :home "example/deps.edn"]))
+  (read-all-deps (canonicalise-dep-locs "/users/foo/proj" [:system :home "example/deps.edn"]))
 
-  (resolve-deps (canonicalise-dep-locs [:system :home "example/deps.edn" "foo"])))
+  (resolve-deps (canonicalise-dep-locs "/users/foo/proj" [:system :home "example/deps.edn" "foo"])))

@@ -7,25 +7,25 @@
 ; of lein-tools-deps.plugin and at least we can know if it builds successfully.
 
 (deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-locs [:system "test-cases/basic-deps.edn"])]
+  (let [canonicalised-files (sut/canonicalise-dep-locs "/users/foo/proj" [:system "test-cases/basic-deps.edn"])]
     (is (every? #(instance? java.io.File %) canonicalised-files))
     (is (every? #(.exists %) canonicalised-files))
     (is (= 2 (count canonicalised-files))
         ":system and supplied file == 2 files")))
 
 (deftest resolve-paths-to-source-paths
-  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/basic-deps.edn"]))]
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs "/users/foo/proj" ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
     (is (= ["src" "test"] (:source-paths deps)))))
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths
-  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/local-root-deps.edn"]))]
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs "/users/foo/proj" ["test-cases/local-root-deps.edn"]))]
     (is (map? deps))
     (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest resolve-deps-git-to-dependencies
-  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs ["test-cases/git-deps.edn"]))]
+  (let [deps (sut/resolve-deps (sut/canonicalise-dep-locs "/users/foo/proj" ["test-cases/git-deps.edn"]))]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
       (is (>= (count dependencies) 2))
