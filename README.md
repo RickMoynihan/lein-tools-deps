@@ -23,6 +23,10 @@ plugin.  You can also supply your own paths as strings, e.g.
 
 You can now delete your `:dependencies` vector from `project.clj`.
 
+## Cursive IDE workarounds for macOS
+
+If you're using `lein-tools-deps` with Cursive on macOS you may run into some issues.  Thankfully @mfikes has provided [some workarounds](https://gist.github.com/mfikes/f803fef3013927c376063a3d72b69d60).
+
 ## Project Status
 
 **VERY ALPHA**
