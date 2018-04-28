@@ -9,7 +9,7 @@ dependencies in your leiningen project.
 Simply add the following to your plugins vector in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.1.0-SNAPSHOT"]]
+  :plugins [[lein-tools-deps "0.3.0-SNAPSHOT"]]
 ```
 
 Then set `:tools/deps` to specify which `deps.edn` files to resolve, we recommend:
