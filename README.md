@@ -31,6 +31,11 @@ You will need the following base dependencies installed:
 - Leiningen 2.8.1
 - [Clojure 1.9.0+ CLI Tools](https://clojure.org/guides/getting_started)
 
+## Cursive IDE workarounds for macOS
+
+If you're using `lein-tools-deps` with Cursive on macOS you may run into some issues.  Thankfully @mfikes has provided [some workarounds](https://gist.github.com/mfikes/f803fef3013927c376063a3d72b69d60).
+>>>>>>> 0db3eb5ebd9f4e567b07bd0ba67eb000d0c66dcc
+
 ## Project Status
 
 **VERY ALPHA**
