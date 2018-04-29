@@ -23,6 +23,14 @@ plugin.  You can also supply your own paths as strings, e.g.
 
 You can now delete your `:dependencies` vector from `project.clj`.
 
+## Prerequisites
+
+You will need the following base dependencies installed:
+
+- Java 8 (recommended)
+- Leiningen 2.8.1
+- [Clojure 1.9.0+ CLI Tools](https://clojure.org/guides/getting_started)
+
 ## Project Status
 
 **VERY ALPHA**
