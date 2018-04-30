@@ -5,5 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :tools/deps [:system :home :project]
-  
-  :plugins [[lein-tools-deps "0.1.0-SNAPSHOT"]])
+
+  :plugins [[lein-tools-deps "0.3.0-SNAPSHOT"]])
