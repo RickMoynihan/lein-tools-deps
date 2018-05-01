@@ -13,12 +13,48 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
+(defn usr-local-bin-clojure-executable
+  "Returns the path to the clojure under /usr/local/bin, if it exists."
+  []
+  (let [executable (io/file File/separator "usr" "local" "bin" "clojure")]
+    (when (.exists executable)
+      (.getAbsolutePath executable))))
+
+(def clojure-executables (remove nil? ["clojure" (usr-local-bin-clojure-executable)]))
+
+(defn- scrape-clojure-env
+  []
+  (let [scrape  (fn [clojure-executable]
+                  (try
+                    (let [{:keys [out exit] :as results} (shell/sh clojure-executable "-Sdescribe")]
+                      (if (zero? exit)
+                        (read-string out)
+                        {::fail results}))
+                    (catch Exception e
+                      {::fail e})))
+        results (reduce (fn [acc clojure-executable]
+                          (let [scraped (scrape clojure-executable)]
+                            (if (contains? scraped ::fail)
+                              (conj acc (::fail scraped))
+                              (reduced scraped))))
+                  []
+                  clojure-executables)]
+    (if (vector? results)
+      (throw (ex-info "Unable to locate Clojure's edn files" {:paths-tried clojure-executables
+                                                              :results     results}))
+      results)))
+
+(def clojure-env
+  "Returns a map describing the environment known to clj/clojure:
+  {:config-files [ ... ]}"
+  (memoize scrape-clojure-env))
+
 (defn make-dep-loc-lookup
   "Returns a function mapping from a loc(ation)
   keyword (either :system, :home or :project) to a file
   location.  If the value is a string it is returned as is."
   []
-  (let [[system-deps home-deps project-deps] (:config-files (reader/clojure-env))
+  (let [[system-deps home-deps project-deps] (:config-files (clojure-env))
         project-deps (or project-deps "deps.edn")]
     (fn [i]
       (if (string? i)
