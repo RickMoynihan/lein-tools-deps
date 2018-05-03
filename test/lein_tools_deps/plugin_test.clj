@@ -22,7 +22,9 @@
   (let [deps (sut/resolve-deps (absolute-base-path)
                (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
-    (is (= ["src" "test"] (:source-paths deps)))))
+    (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
+            (.getAbsolutePath (io/file (absolute-base-path) "test"))]
+          (:source-paths deps)))))
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths

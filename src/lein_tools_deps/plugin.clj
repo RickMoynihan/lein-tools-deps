@@ -2,6 +2,7 @@
   (:require [clojure.tools.deps.alpha :as deps]
             [clojure.tools.deps.alpha.reader :as reader]
             [clojure.java.io :as io]
+            [clojure.java.shell :as shell]
             [leiningen.core.project :as p]
             [leiningen.core.main :as lein])
   (:import (java.io File)))
@@ -33,11 +34,18 @@
   (let [file (io/file path)]
     (cond->> file (not (.isAbsolute file)) (io/file base-path))))
 
+(defn absolute-path
+  "Takes an absolute base path and a potentially relative file and returns an
+  absolute path (string), using the base to to form the absolute file if
+  needed."
+  [base-path path]
+  (.getAbsolutePath (absolute-file base-path path)))
+
 (defn canonicalise-dep-locs
   "Returns a seq of absolute java.io.File given a seq of dep-refs.  Any
   relative dep-refs will be made absolute relative to project-root."
   [project-root dep-refs]
-  (let [location->dep-path (make-dep-loc-lookup)]
+  (let [location->dep-path (shell/with-sh-dir project-root (make-dep-loc-lookup))]
     (->> dep-refs
          (map #(location->dep-path %))
          (map io/file)
@@ -72,18 +80,19 @@
                       (filter-by-manifest :mvn)
                       (mapv leinize))})
 
-(defn lein-source-paths [merged-deps tdeps]
+(defn lein-source-paths [project-root merged-deps tdeps]
   {:source-paths (->> tdeps
                       (filter-by-manifest :deps)
                       (mapv leinize)
                       (apply concat)
-                      (into (:paths merged-deps)))})
+                      (into (:paths merged-deps))
+                      (map (partial absolute-path project-root)))})
 
 (defn absolute-local-root-coords
   "Given a base path and :local/root coordinates, ensures the specified path
   is absolute relative to the base path."
   [base-path {:keys [local/root]}]
-  {:local/root (.getAbsolutePath (absolute-file base-path root))})
+  {:local/root (absolute-path base-path root)})
 
 (defn absolute-coords
   "Given a base path and dep coordinates, ensures any paths in the coordinates
@@ -130,7 +139,7 @@
         deps (absolute-deps project-root deps)
         tdeps-map (deps/resolve-deps deps {})]
     (merge (lein-dependencies tdeps-map)
-           (lein-source-paths deps tdeps-map))))
+           (lein-source-paths project-root deps tdeps-map))))
 
 (defn loc-or-string? [l]
   (or (#{:system :home :project} l) (string? l)))
