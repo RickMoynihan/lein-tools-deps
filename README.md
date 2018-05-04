@@ -14,14 +14,18 @@ Simply add the following to your plugins vector in your `project.clj`:
 
 Then set `:tools/deps` to specify which `deps.edn` files to resolve, we recommend:
 
-`:tools/deps [:system :home :project]`
+```
+:tools/deps {:config-files [:system :home :project]}
+```
 
 The keywords `:system`, `:home` and `:project` will be resolved by the
 plugin.  You can also supply your own paths as strings, e.g.
 
-`:tools/deps [:system :home :project "../src/deps.edn"]`
+`:tools/deps {:config-files [:system :home :project "../src/deps.edn"]}`
 
 You can now delete your `:dependencies` vector from `project.clj`.
+
+> Note: With `0.3.0-SNAPSHOT` and earlier, the config looked like `:tools/deps [:system :home :project]`
 
 ## Prerequisites
 

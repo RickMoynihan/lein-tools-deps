@@ -147,15 +147,16 @@
   (or (#{:system :home :project} l) (string? l)))
 
 (defn middleware
-  "Inject relevant keys from deps.edn files into the leiningen project map."
-  [{deps-files :tools/deps :as project}]
-  (if (seq deps-files)
-    (if (every? loc-or-string? deps-files)
-      (->> deps-files
+  "Inject relevant keys from deps.edn files into the leiningen project map
+  while honoring other user-supplied config."
+  [{{:keys [config-files] :as config} :tools/deps :as project}]
+  (if (seq config-files)
+    (if (every? loc-or-string? config-files)
+      (->> config-files
            (canonicalise-dep-locs (:root project))
            (resolve-deps (:root project))
            (merge project))
-      (do (lein/warn  "Every element in :tools/deps must either be a file-path string or one of the locations :system, :project, or :home.")
+      (do (lein/warn  "Every element in :tools/deps :config-files must either be a file-path string or one of the locations :system, :project, or :home.")
           (lein/exit 1)))
     project))
 
