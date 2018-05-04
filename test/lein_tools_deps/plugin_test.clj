@@ -12,7 +12,7 @@
   (.getAbsolutePath (io/file "")))
 
 (deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-locs (absolute-base-path) [:system "test-cases/basic-deps.edn"])]
+  (let [canonicalised-files (sut/canonicalise-dep-locs {} (absolute-base-path) [:system "test-cases/basic-deps.edn"])]
     (is (every? #(instance? java.io.File %) canonicalised-files))
     (is (every? #(.exists %) canonicalised-files))
     (is (= 2 (count canonicalised-files))
@@ -20,7 +20,7 @@
 
 (deftest resolve-paths-to-source-paths
   (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/basic-deps.edn"]))]
+               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
@@ -35,7 +35,7 @@
 
 (deftest resolve-deps-git-to-dependencies
   (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/git-deps.edn"]))]
+               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/git-deps.edn"]))]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
       (is (>= (count dependencies) 2))

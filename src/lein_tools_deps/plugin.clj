@@ -13,36 +13,23 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
-(defn usr-local-bin-clojure-executable
-  "Returns the path to the clojure under /usr/local/bin, if it exists."
-  []
-  (let [executable (io/file File/separator "usr" "local" "bin" "clojure")]
-    (when (.exists executable)
-      (.getAbsolutePath executable))))
+(def default-clojure-executables ["/usr/local/bin/clojure"])
 
-(def clojure-executables (remove nil? ["clojure" (usr-local-bin-clojure-executable)]))
+(defn- clojure-exe
+  [config]
+  (let [clojure-paths (or (:clojure-executables config) default-clojure-executables)
+        exe (->> clojure-paths
+                 (filter #(.exists (io/file %)))
+                 first)]
+    (or exe (throw (ex-info "Could not find clojure executable" {:tried-paths clojure-paths})))))
 
 (defn- scrape-clojure-env
-  []
-  (let [scrape  (fn [clojure-executable]
-                  (try
-                    (let [{:keys [out exit] :as results} (shell/sh clojure-executable "-Sdescribe")]
-                      (if (zero? exit)
-                        (read-string out)
-                        {::fail results}))
-                    (catch Exception e
-                      {::fail e})))
-        results (reduce (fn [acc clojure-executable]
-                          (let [scraped (scrape clojure-executable)]
-                            (if (contains? scraped ::fail)
-                              (conj acc (::fail scraped))
-                              (reduced scraped))))
-                  []
-                  clojure-executables)]
-    (if (vector? results)
-      (throw (ex-info "Unable to locate Clojure's edn files" {:paths-tried clojure-executables
-                                                              :results     results}))
-      results)))
+  [config]
+  (let [exe (clojure-exe config)
+        {:keys [out exit] :as result} (shell/sh exe "-Sdescribe")]
+    (if (zero? exit)
+      (read-string out)
+      (throw (ex-info "Unable to locate Clojure's edn files" result)))))
 
 (def clojure-env
   "Returns a map describing the environment known to clj/clojure:
@@ -53,8 +40,8 @@
   "Returns a function mapping from a loc(ation)
   keyword (either :system, :home or :project) to a file
   location.  If the value is a string it is returned as is."
-  []
-  (let [[system-deps home-deps project-deps] (:config-files (clojure-env))
+  [config]
+  (let [[system-deps home-deps project-deps] (:config-files (clojure-env config))
         project-deps (or project-deps "deps.edn")]
     (fn [i]
       (if (string? i)
@@ -82,8 +69,8 @@
 (defn canonicalise-dep-locs
   "Returns a seq of absolute java.io.File given a seq of dep-refs.  Any
   relative dep-refs will be made absolute relative to project-root."
-  [project-root dep-refs]
-  (let [location->dep-path (shell/with-sh-dir project-root (make-dep-loc-lookup))]
+  [config project-root dep-refs]
+  (let [location->dep-path (shell/with-sh-dir project-root (make-dep-loc-lookup config))]
     (->> dep-refs
          (map #(location->dep-path %))
          (map io/file)
@@ -184,7 +171,7 @@
 
 (defn apply-middleware [{{:keys [config-files] :as config} :tools/deps :as project}]
   (->> config-files
-       (canonicalise-dep-locs (:root project))
+       (canonicalise-dep-locs config (:root project))
        (resolve-deps (:root project))
        (merge project)))
 
