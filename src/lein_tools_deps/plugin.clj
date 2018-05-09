@@ -146,19 +146,32 @@
 (defn loc-or-string? [l]
   (or (#{:system :home :project} l) (string? l)))
 
+(defn apply-middleware [{{:keys [config-files] :as config} :tools/deps :as project}]
+  (->> config-files
+       (canonicalise-dep-locs (:root project))
+       (resolve-deps (:root project))
+       (merge project)))
+
 (defn middleware
   "Inject relevant keys from deps.edn files into the leiningen project map
   while honoring other user-supplied config."
   [{{:keys [config-files] :as config} :tools/deps :as project}]
-  (if (seq config-files)
+
+  (cond
+    (seq config-files)
+
     (if (every? loc-or-string? config-files)
-      (->> config-files
-           (canonicalise-dep-locs (:root project))
-           (resolve-deps (:root project))
-           (merge project))
+      (apply-middleware project)
       (do (lein/warn  "Every element in :tools/deps :config-files must either be a file-path string or one of the locations :system, :project, or :home.")
           (lein/exit 1)))
-    project))
+    
+    (not (map? config))
+
+    (do (lein/warn  ":tools/deps must specify a configuration map.")
+        (lein/exit 1))
+
+    ;; pass through
+    :else project))
 
 (comment
   (read-all-deps (canonicalise-dep-locs "/users/foo/proj" [:system :home "example/deps.edn"]))
