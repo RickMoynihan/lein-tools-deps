@@ -9,23 +9,23 @@ dependencies in your leiningen project.
 Simply add the following to your plugins vector in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.3.0-SNAPSHOT"]]
+  :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
 ```
 
 Then set `:tools/deps` to specify which `deps.edn` files to resolve, we recommend:
 
 ```
-:tools/deps {:config-files [:system :home :project]}
+:tools/deps {:config-files [:install :user :project]}
 ```
 
-The keywords `:system`, `:home` and `:project` will be resolved by the
+The keywords `:install`, `:user` and `:project` will be resolved by the
 plugin.  You can also supply your own paths as strings, e.g.
 
-`:tools/deps {:config-files [:system :home :project "../src/deps.edn"]}`
+`:tools/deps {:config-files [:install :user :project "../src/deps.edn"]}`
 
 You can now delete your `:dependencies` vector from `project.clj`.
 
-> Note: With `0.3.0-SNAPSHOT` and earlier, the config looked like `:tools/deps [:system :home :project]`
+> Note: With `0.3.0-SNAPSHOT` and earlier, the config looked like `:tools/deps [:install :user :project]`
 
 ## Prerequisites
 

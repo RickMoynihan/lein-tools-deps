@@ -4,6 +4,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
-  :tools/deps {:config-files [:system :home :project]}
-
+  :tools/deps {:config-files [:install :user :project]}
+  
   :plugins [[lein-tools-deps "0.3.0-SNAPSHOT"]])

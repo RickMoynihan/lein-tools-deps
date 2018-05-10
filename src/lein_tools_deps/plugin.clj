@@ -15,7 +15,7 @@
 
 (defn make-dep-loc-lookup
   "Returns a function mapping from a loc(ation)
-  keyword (either :system, :home or :project) to a file
+  keyword (either :install, :user or :project) to a file
   location.  If the value is a string it is returned as is."
   []
   (let [[system-deps home-deps project-deps] (:config-files (reader/clojure-env))
@@ -23,8 +23,8 @@
     (fn [i]
       (if (string? i)
         i
-        ({:system system-deps
-          :home home-deps
+        ({:install system-deps
+          :user home-deps
           :project project-deps} i)))))
 
 (defn ^File absolute-file
@@ -143,8 +143,12 @@
     (merge (lein-dependencies tdeps-map)
            (lein-source-paths project-root deps tdeps-map))))
 
+(def defunct-loc-keys #{:system :home})
+
+(def valid-loc-keys #{:install :user :project})
+
 (defn loc-or-string? [l]
-  (or (#{:system :home :project} l) (string? l)))
+  (or (valid-loc-keys l) (string? l)))
 
 (defn apply-middleware [{{:keys [config-files] :as config} :tools/deps :as project}]
   (->> config-files
@@ -157,14 +161,18 @@
   while honoring other user-supplied config."
   [{{:keys [config-files] :as config} :tools/deps :as project}]
 
+  (when (some defunct-loc-keys config-files)
+    (lein/warn "Your :tools/deps :config-files contains defunct location keys please update to the supported ones" valid-loc-keys)
+    (lein/exit 1))
+  
   (cond
     (seq config-files)
 
     (if (every? loc-or-string? config-files)
       (apply-middleware project)
-      (do (lein/warn  "Every element in :tools/deps :config-files must either be a file-path string or one of the locations :system, :project, or :home.")
+      (do (lein/warn  "Every element in :tools/deps :config-files must either be a file-path string or one of the location keys" valid-loc-keys)
           (lein/exit 1)))
-    
+     
     (not (map? config))
 
     (do (lein/warn  ":tools/deps must specify a configuration map.")
@@ -174,6 +182,9 @@
     :else project))
 
 (comment
-  (read-all-deps (canonicalise-dep-locs "/users/foo/proj" [:system :home "example/deps.edn"]))
+  (read-all-deps (canonicalise-dep-locs "/Users/rick/repos/lein-tools-deps/example" [:install :user "deps.edn"]))
 
-  (resolve-deps (canonicalise-dep-locs "/users/foo/proj" [:system :home "example/deps.edn" "foo"])))
+  (resolve-deps "/Users/rick/repos/lein-tools-deps/example"
+                (canonicalise-dep-locs "/Users/rick/repos/lein-tools-deps/example" [:install :user :project]))
+
+  (resolve-deps (canonicalise-dep-locs "/users/foo/proj" [:install :user "example/deps.edn" "foo"])))
