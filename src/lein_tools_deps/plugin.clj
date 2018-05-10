@@ -150,7 +150,7 @@
 (defn loc-or-string? [l]
   (or (valid-loc-keys l) (string? l)))
 
-(defn apply-middleware [{{:keys [config-files] :as config} :tools/deps :as project}]
+(defn apply-middleware [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
   (->> config-files
        (canonicalise-dep-locs (:root project))
        (resolve-deps (:root project))
@@ -159,10 +159,10 @@
 (defn middleware
   "Inject relevant keys from deps.edn files into the leiningen project map
   while honoring other user-supplied config."
-  [{{:keys [config-files] :as config} :tools/deps :as project}]
+  [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
 
   (when (some defunct-loc-keys config-files)
-    (lein/warn "Your :tools/deps :config-files contains defunct location keys please update to the supported ones" valid-loc-keys)
+    (lein/warn "Your :lein-tools-deps/config :config-files contains defunct location keys please update to the supported ones" valid-loc-keys)
     (lein/exit 1))
   
   (cond
@@ -170,12 +170,12 @@
 
     (if (every? loc-or-string? config-files)
       (apply-middleware project)
-      (do (lein/warn  "Every element in :tools/deps :config-files must either be a file-path string or one of the location keys" valid-loc-keys)
+      (do (lein/warn  "Every element in :lein-tools-deps/config :config-files must either be a file-path string or one of the location keys" valid-loc-keys)
           (lein/exit 1)))
-     
+      
     (not (map? config))
 
-    (do (lein/warn  ":tools/deps must specify a configuration map.")
+    (do (lein/warn  ":lein-tools-deps/config must specify a configuration map.")
         (lein/exit 1))
 
     ;; pass through
