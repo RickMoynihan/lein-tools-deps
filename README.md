@@ -50,6 +50,14 @@ ideas for future development welcome.
 
 Please see the [issue tracker](https://github.com/RickMoynihan/lein-tools-deps/issues)
 
+## With thanks to
+
+- @mfikes
+- @seancorfield
+- @puredanger
+- @atroche
+- @marco-m
+
 ## License
 
 Copyright © 2017 Rick Moynihan
