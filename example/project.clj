@@ -6,4 +6,4 @@
   
   :lein-tools-deps/config {:config-files [:install :user :project]}
   
-  :plugins [[lein-tools-deps "0.3.0-SNAPSHOT"]])
+  :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]])
