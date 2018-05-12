@@ -39,6 +39,28 @@ yourself.  Likewise for `deps.edn` projects if you need to start
 `:aot` compiling, `uberjar`ing, or integrating with a `:cljs-build`,
 you now can.
 
+Essentially `lein-tools-deps` lets Clojure practitioners use both
+`Leiningen` and the `clj` / `deps.edn` tools together in the same
+project.
+
+## Why not use boot instead?
+
+You certainly can do that, and I won't persuade you not to.  Boot is
+arguably a better choice than Leiningen if you need more bespoke build
+scripting.  However Leiningen projects because of their declarative
+constraints tend to be more uniform and familiar.  Leiningen projects
+are harder to turn into unique snowflakes, which might be better or
+worse for you.
+
+If you don't need anything fancy and want to just get started quickly,
+I'd recommend Leiningen over Boot.  If you don't need to `:aot`, or to
+build your Clojure at all, and your development environment and
+prefered tools support it go lightweight and just use `clj` and
+`deps.edn`.
+
+If you want to integrate boot with tools.deps you can via @seancorfield's 
+[boot-tools-deps](https://github.com/seancorfield/boot-tools-deps/).
+
 ## Usage
 
 Simply add the following to your plugins vector in your `project.clj`:
