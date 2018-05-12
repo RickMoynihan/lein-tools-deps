@@ -1,8 +1,43 @@
 # lein-tools-deps
 
 A leiningen plugin that lets you
-share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
-dependencies in your leiningen project.
+use [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
+`deps.edn` dependencies in your leiningen project.
+
+## Why use leiningen and deps.edn?
+
+The Clojure 1.9.0 command line tools bring a host of new benefits to
+the Clojure practitioner.  In particular native support for
+dependencies hosted in git repositories (and not deployed as maven
+artifacts), faster startup times for project REPLs, and easier ways to
+script with Clojure and define multi-project projects; all whilst
+providing a purely declarative data format in the form of `deps.edn`
+files.
+
+However at its core `deps.edn` and the CLI tools are just a simple
+system that provide better facilities for resolving dependencies and
+building a java classpath.  They actively avoid being a build tool,
+and consequently can't be used in isolation to build a project, `:aot`
+compile it and `uberjar` it.
+
+Leiningen is the incumbent build tool for Clojure projects.  It's well
+supported, with a thriving plugin ecosystem, and is the default choice
+in the Clojure world if you need to build an application or deploy a
+library.  It's easy to get started with and is great if you have a
+pro-forma project; which doesn't need much custom build-scripting.
+
+`lein-tools-deps` teaches Leiningen to work with `:dependencies` from
+your `deps.edn` files, which means you can get the best of both
+worlds.  You can use `clj` and `deps.edn` to take advantage of
+`deps.edn` sub-projects, located on the local filesystem
+(`:local/root`) and in git repositories (`:git/url`) or make use of
+standard maven dependencies (`:mvn/version`).
+
+`lein-tools-deps` will let you replace your leiningen `:dependencies`
+entirely with those from `deps.edn` meaning you don't need to repeat
+yourself.  Likewise for `deps.edn` projects if you need to start
+`:aot` compiling, `uberjar`ing, or integrating with a `:cljs-build`,
+you now can.
 
 ## Usage
 
