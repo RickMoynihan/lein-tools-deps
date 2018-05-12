@@ -60,7 +60,10 @@ plugin.  You can also supply your own paths as strings, e.g.
 
 You can now delete your `:dependencies` vector from `project.clj`.
 
-> Note: With `0.3.0-SNAPSHOT` and earlier, the config looked like `:lein-tools-deps/config [:install :user :project]`
+> Note: With `lein-tools-deps` `0.3.0-SNAPSHOT` and earlier, the
+> config value was a vector and looked like `:tools/deps [:install
+> :user :project]`, as of 0.4.0-SNAPSHOT it changed to the above map
+> based syntax.
 
 ## Prerequisites
 
