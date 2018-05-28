@@ -155,7 +155,7 @@
        (resolve-deps (:root project))
        (merge project)))
 
-(defn middleware
+(defn resolve-dependencies-with-deps-edn
   "Inject relevant keys from deps.edn files into the leiningen project map
   while honoring other user-supplied config."
   [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
