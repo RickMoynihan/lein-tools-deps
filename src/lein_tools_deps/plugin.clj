@@ -3,7 +3,6 @@
             [clojure.tools.deps.alpha.reader :as reader]
             [clojure.java.io :as io]
             [clojure.java.shell :as shell]
-            [leiningen.core.project :as p]
             [leiningen.core.main :as lein])
   (:import (java.io File)))
 

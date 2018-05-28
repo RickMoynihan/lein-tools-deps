@@ -1,8 +1,7 @@
 (ns lein-tools-deps.plugin-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [lein-tools-deps.plugin :as sut]
-            [lein-tools-deps.plugin :as plugin])
+            [lein-tools-deps.plugin :as sut])
   (:import (java.io File)))
 
 ; The mere presence of this file means that `lein test` will trigger a compilation
