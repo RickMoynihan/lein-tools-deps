@@ -87,6 +87,24 @@ You can now delete your `:dependencies` vector from `project.clj`.
 > :user :project]`, as of 0.4.0-SNAPSHOT it changed to the above map
 > based syntax.
 
+### Supported configuration options
+
+#### `:config-files`
+
+A vector referencing an ordered collection of `deps.edn` files that
+will be used for dependency resolution.  Each file should be either a
+file path string or a special keyword (`:install` `:user` or
+`:project`).
+
+#### `:clojure-executables`
+
+A vector of strings identifying possible install locations for the
+`clojure` command line tool script.  They will be tried in order, with
+the first match being used.  The default is currently set to
+`[/usr/local/bin/clojure]`.  This is necessary as `lein-tools-deps`
+uses the `clojure` executable to determine some system specific
+defaults, such as the location of the `:install` `:config-files`.
+
 ## Prerequisites
 
 You will need the following base dependencies installed:
