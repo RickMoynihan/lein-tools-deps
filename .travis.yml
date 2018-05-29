@@ -12,4 +12,7 @@ before_install:
 - "sudo ./linux-install-1.9.0.375.sh"
 - "clojure -Sdescribe"
 
-script: lein test && lein install && cd example && lein run -m foo.core
+script:
+  - lein test
+  - lein install
+  - cd example && lein run -m foo.core
