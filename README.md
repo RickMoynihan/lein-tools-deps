@@ -63,10 +63,15 @@ If you want to integrate boot with tools.deps you can via @seancorfield's
 
 ## Usage
 
-Simply add the following to your plugins vector in your `project.clj`:
+Simply add the following to your plugins and middleware vectors,
+respectively, in your `project.clj`:
 
 ```clojure
   :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
+```
+
+```clojure
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
 ```
 
 Then set `:lein-tools-deps/config` to specify which `deps.edn` files to resolve, we recommend:
