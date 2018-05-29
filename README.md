@@ -63,10 +63,15 @@ If you want to integrate boot with tools.deps you can via @seancorfield's
 
 ## Usage
 
-Simply add the following to your plugins vector in your `project.clj`:
+Simply add the following to your plugins and middleware vectors,
+respectively, in your `project.clj`:
 
 ```clojure
   :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
+```
+
+```clojure
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
 ```
 
 Then set `:lein-tools-deps/config` to specify which `deps.edn` files to resolve, we recommend:
@@ -86,6 +91,24 @@ You can now delete your `:dependencies` vector from `project.clj`.
 > config value was a vector and looked like `:tools/deps [:install
 > :user :project]`, as of 0.4.0-SNAPSHOT it changed to the above map
 > based syntax.
+
+### Supported configuration options
+
+#### `:config-files`
+
+A vector referencing an ordered collection of `deps.edn` files that
+will be used for dependency resolution.  Each file should be either a
+file path string or a special keyword (`:install` `:user` or
+`:project`).
+
+#### `:clojure-executables`
+
+A vector of strings identifying possible install locations for the
+`clojure` command line tool script.  They will be tried in order, with
+the first match being used.  The default is currently set to
+`[/usr/local/bin/clojure]`.  This is necessary as `lein-tools-deps`
+uses the `clojure` executable to determine some system specific
+defaults, such as the location of the `:install` `:config-files`.
 
 ## Prerequisites
 

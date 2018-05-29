@@ -1,9 +1,9 @@
 (ns lein-tools-deps.plugin-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [lein-tools-deps.plugin :as sut]
-            [lein-tools-deps.plugin :as plugin])
-  (:import (java.io File)))
+            [lein-tools-deps.plugin :as sut])
+  (:import (java.io File)
+           (clojure.lang ExceptionInfo)))
 
 ; The mere presence of this file means that `lein test` will trigger a compilation
 ; of lein-tools-deps.plugin and at least we can know if it builds successfully.
@@ -12,7 +12,7 @@
   (.getAbsolutePath (io/file "")))
 
 (deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-locs (absolute-base-path) [:install "test-cases/basic-deps.edn"])]
+  (let [canonicalised-files (sut/canonicalise-dep-locs {} (absolute-base-path) [:install "test-cases/basic-deps.edn"])]
     (is (every? #(instance? java.io.File %) canonicalised-files))
     (is (every? #(.exists %) canonicalised-files))
     (is (= 2 (count canonicalised-files))
@@ -20,7 +20,7 @@
 
 (deftest resolve-paths-to-source-paths
   (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/basic-deps.edn"]))]
+               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
@@ -35,7 +35,7 @@
 
 (deftest resolve-deps-git-to-dependencies
   (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/git-deps.edn"]))]
+               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/git-deps.edn"]))]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
       (is (>= (count dependencies) 2))
@@ -84,3 +84,15 @@
                                         :aliases {:test {:extra-deps {'some-lib2  {:mvn/version "1.1.0"}
                                                                       'local-lib2 {:local/root "bar"}}}
                                                   :bar  {:main-opts ["foo" "bar"]}}})))))
+
+(deftest resolve-dependencies-with-deps-edn-test
+  (let [project {:lein-tools-deps/config {:config-files []}}]
+    (is (= (sut/resolve-dependencies-with-deps-edn project)
+           project)))
+  (let [project {:lein-tools-deps/config {}}]
+    (is (= (sut/resolve-dependencies-with-deps-edn project)
+           project)))
+  
+  (let [project {:lein-tools-deps/config {:config-files [:bad-location]}}]
+    (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn project))))
+  (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn {}))))
