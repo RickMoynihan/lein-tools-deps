@@ -3,7 +3,6 @@
             [clojure.tools.deps.alpha.reader :as reader]
             [clojure.java.io :as io]
             [clojure.java.shell :as shell]
-            [leiningen.core.project :as p]
             [leiningen.core.main :as lein])
   (:import (java.io File)))
 
@@ -179,7 +178,7 @@
        (resolve-deps (:root project))
        (merge project)))
 
-(defn middleware
+(defn resolve-dependencies-with-deps-edn
   "Inject relevant keys from deps.edn files into the leiningen project map
   while honoring other user-supplied config."
   [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]

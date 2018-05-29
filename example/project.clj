@@ -4,6 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
-  :lein-tools-deps/config {:config-files [:install :user :project]}
+  :lein-tools-deps/config {:config-files [:install :user :project]} 
   
-  :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]])
+  :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
+            
+  :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn])
