@@ -15,5 +15,7 @@
   ; specific to your leiningen environment. We include this sole dependency here to demonstrate how deps.edn
   ; dependencies are combined with those in leiningen.
   :dependencies [[clj-time "0.14.4"]]
+
+  :profiles {:cache {:lein-tools-deps/config {:resolve-aliases [:cache]}}}
   
   :aot [foo.core])

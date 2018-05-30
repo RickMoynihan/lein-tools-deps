@@ -19,7 +19,7 @@
         ":system and supplied file == 2 files")))
 
 (deftest resolve-paths-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path)
+  (let [deps (sut/resolve-deps (absolute-base-path) []
                (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
@@ -34,7 +34,7 @@
     (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest resolve-deps-git-to-dependencies
-  (let [deps (sut/resolve-deps (absolute-base-path)
+  (let [deps (sut/resolve-deps (absolute-base-path) []
                (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/git-deps.edn"]))]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
@@ -42,6 +42,14 @@
       (is (every? #{'[clj-time/clj-time "0.14.2"]
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
+
+(deftest resolve-deps-extra-paths
+  (let [deps (sut/resolve-deps (absolute-base-path) [:bench]
+               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/alias-deps.edn"]))]
+    (is (map? deps))
+    (is (= deps
+           {:dependencies [['criterium/criterium "0.4.4"]]
+            :source-paths ()}))))
 
 (deftest absolute-file-test
   (let [base-path (absolute-base-path)]
@@ -96,3 +104,13 @@
   (let [project {:lein-tools-deps/config {:config-files [:bad-location]}}]
     (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn project))))
   (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn {}))))
+
+(deftest apply-middleware-test
+  (let [input-project {:root                   (absolute-base-path)
+                       :lein-tools-deps/config {:config-files    ["test-cases/alias-deps.edn"]
+                                                :resolve-aliases [:bench]}}]
+    (is (= (sut/apply-middleware input-project)
+           (merge
+             input-project
+             {:dependencies [['criterium/criterium "0.4.4"]]
+              :source-paths ()})))))

@@ -37,7 +37,7 @@
            :1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
            :1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
            :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
-           :bench {:extra-deps {criterium/criterium {:mvn/version "0.4.4"}}}}
+           :cache {:extra-deps {org.clojure/core.cache {:mvn/version "0.7.1"}}}}
  
  ;; :aliases {
  ;;   :deps {:extra-deps {org.clojure/tools.deps.alpha {:mvn/version "0.2.167"}}}
