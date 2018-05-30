@@ -7,9 +7,13 @@
   :lein-tools-deps/config {:config-files [:install :user :project]} 
   
   :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
-            
+
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
-            
+
+  ; Dependencies provided by deps.edn are merged with any found in your configured leiningen profile. Normally we'd
+  ; recommend you remove as many dependencies as possible from your :dependencies vector, unless you want them to be
+  ; specific to your leiningen environment. We include this sole dependency here to demonstrate how deps.edn
+  ; dependencies are combined with those in leiningen.
   :dependencies [[clj-time "0.14.4"]]
   
   :aot [foo.core])
