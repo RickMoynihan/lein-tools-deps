@@ -79,7 +79,7 @@
   (-> deps-files
       reader/read-deps))
 
-(defmulti leinize (fn [[dep-key dep-val]]
+(defmulti leinize (fn [[_ dep-val]]
                     (:deps/manifest dep-val)))
 
 (defmethod leinize :mvn [[artifact info]]
@@ -91,11 +91,11 @@
                            :exclusions
                            :scope])))
 
-(defmethod leinize :deps [[artifact info]]
+(defmethod leinize :deps [[_ info]]
   (:paths info))
 
 (defn filter-by-manifest [manifest-type tdeps]
-  (filter (fn [[artifact info]]
+  (filter (fn [[_ info]]
             (= manifest-type (:deps/manifest info)))
           tdeps))
 
