@@ -1,17 +1,4 @@
-;; The deps.edn file describes the information needed to build a classpath.
-;;
-;; When using the `clojure` or `clj` script, there are several deps.edn files
-;; that are combined:
-;; - install-level
-;; - user level (this file)
-;; - project level (current directory when invoked)
-;;
-;; For all attributes other than :paths, these config files are merged left to right.
-;; Only the last :paths is kept and others are dropped.
-
 {
- ;; Paths
- ;;   Directories in the current project to include in the classpath
 
  :paths ["src" "test"]
 
@@ -37,17 +24,7 @@
            :1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
            :1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
            :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
-           :cache {:extra-deps {org.clojure/core.cache {:mvn/version "0.7.1"}}}}
+           :cache {:extra-deps {org.clojure/core.cache {:mvn/version "0.7.1"}}}
+           :async {:extra-deps {org.clojure/core.async {:mvn/version "0.4.474"}}}}
  
- ;; :aliases {
- ;;   :deps {:extra-deps {org.clojure/tools.deps.alpha {:mvn/version "0.2.167"}}}
- ;;   :test {:extra-paths ["test"]}
- ;; }
-
- ;; Provider attributes
-
- ;; :mvn/repos {
- ;;   "central" {:url "https://repo1.maven.org/maven2/"}
- ;;   "clojars" {:url "https://clojars.org/repo/"}
- ;; }
  }
