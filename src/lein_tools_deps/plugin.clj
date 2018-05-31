@@ -161,7 +161,7 @@
    (let [all-deps (filter #(.exists %) deps)
          deps (read-all-deps all-deps)
          {:keys [aliases] :as deps} (absolute-deps project-root deps)
-         args-map (apply merge (map aliases required-aliases))
+         args-map (deps/combine-aliases deps required-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
      (merge (lein-dependencies tdeps-map)
             (lein-source-paths project-root deps tdeps-map))))
