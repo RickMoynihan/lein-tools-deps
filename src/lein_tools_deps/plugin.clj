@@ -166,18 +166,18 @@
      (merge (lein-dependencies tdeps-map)
             (lein-source-paths root deps tdeps-map))))
 
+(defn apply-middleware [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+  (->> config-files
+       (canonicalise-dep-locs config (:root project))
+       (resolve-deps project)
+       (merge project)))
+
 (def defunct-loc-keys #{:system :home})
 
 (def valid-loc-keys #{:install :user :project})
 
 (defn loc-or-string? [l]
   (or (valid-loc-keys l) (string? l)))
-
-(defn apply-middleware [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
-  (->> config-files
-       (canonicalise-dep-locs config (:root project))
-       (resolve-deps project)
-       (merge project)))
 
 (defn resolve-dependencies-with-deps-edn
   "Inject relevant keys from deps.edn files into the leiningen project map
