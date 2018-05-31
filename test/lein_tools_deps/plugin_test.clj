@@ -19,7 +19,7 @@
         ":system and supplied file == 2 files")))
 
 (deftest resolve-paths-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path) []
+  (let [deps (sut/resolve-deps {:root (absolute-base-path)}
                (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/basic-deps.edn"]))]
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
@@ -34,7 +34,7 @@
     (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest resolve-deps-git-to-dependencies
-  (let [deps (sut/resolve-deps (absolute-base-path) []
+  (let [deps (sut/resolve-deps {:root (absolute-base-path)}
                (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/git-deps.edn"]))]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
@@ -43,9 +43,9 @@
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
 
-(deftest resolve-deps-extra-paths
-  (let [deps (sut/resolve-deps (absolute-base-path) [:bench]
-               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/alias-deps.edn"]))]
+(deftest resolve-deps-extra-deps
+  (let [deps (sut/resolve-deps {:root (absolute-base-path) :lein-tools-deps/config {:resolve-aliases [:bench]}}
+                               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/alias-deps.edn"]))]
     (is (map? deps))
     (is (= deps
            {:dependencies [['criterium/criterium "0.4.4"]]
