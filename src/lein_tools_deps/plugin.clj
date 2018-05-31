@@ -100,17 +100,17 @@
           tdeps))
 
 (defn lein-dependencies [tdeps]
-  {:dependencies (->> tdeps
-                      (filter-by-manifest :mvn)
-                      (mapv leinize))})
+  (->> tdeps
+       (filter-by-manifest :mvn)
+       (mapv leinize)))
 
 (defn lein-source-paths [project-root merged-deps tdeps]
-  {:source-paths (->> tdeps
-                      (filter-by-manifest :deps)
-                      (mapv leinize)
-                      (apply concat)
-                      (into (:paths merged-deps))
-                      (map (partial absolute-path project-root)))})
+  (->> tdeps
+       (filter-by-manifest :deps)
+       (mapv leinize)
+       (apply concat)
+       (into (:paths merged-deps))
+       (map (partial absolute-path project-root))))
 
 (defn absolute-local-root-coords
   "Given a base path and :local/root coordinates, ensures the specified path
@@ -157,11 +157,12 @@
 
   Returns a {:dependencies [coordinates]} datastructure suitable for
   meta-merging into a lein project map."
-  [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config} deps]
+  [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config :as project} deps]
    (let [args-map (deps/combine-aliases deps resolve-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
-     (merge (lein-dependencies tdeps-map)
-            (lein-source-paths root deps tdeps-map))))
+     (-> project
+         (update :dependencies concat (lein-dependencies tdeps-map))
+         (update :source-paths concat (lein-source-paths root deps tdeps-map)))))
 
 (defn make-deps [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
   (->> config-files
@@ -171,9 +172,8 @@
        (absolute-deps root)))
 
 (defn apply-middleware [project]
-  (->> (make-deps project)
-       (resolve-deps project)
-       (merge project)))
+  (let [deps (make-deps project)]
+    (resolve-deps project deps)))
 
 (def defunct-loc-keys #{:system :home})
 
