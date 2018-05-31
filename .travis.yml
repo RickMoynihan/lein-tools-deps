@@ -17,4 +17,4 @@ script:
   - lein install
   - cd example
   - lein run 
-  - lein with-profile cache run
+  - lein with-profile resolve-alias-example run

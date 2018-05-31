@@ -1,4 +1,4 @@
-(ns foo.alias
+(ns foo.resolve-alias
   (:require [clojure.core.cache :as cache]
             [clojure.core.async :as async])
   (:gen-class))

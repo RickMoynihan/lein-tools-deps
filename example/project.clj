@@ -34,8 +34,8 @@
   ;; of :resolve-aliases are given to tools.deps for it to resolve.
   ;;
   ;; So the :cache profile below will resolve-aliases for [:async :cache].
-  :profiles {:cache {:lein-tools-deps/config {:resolve-aliases [:cache]}
-                     :main foo.alias}}
+  :profiles {:resolve-alias-example {:lein-tools-deps/config {:resolve-aliases [:cache]}
+                                     :main foo.resolve-alias}}
  
 
   :main foo.core
