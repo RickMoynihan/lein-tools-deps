@@ -10,4 +10,5 @@
   []
   (criterium/jvm-jit-name)
   (demo/tomorrow (clj-time/now))
-  (local-root/local-root-resolves))
+  (local-root/local-root-resolves)
+  (println "✓ Tested lein-tools-deps resolves :deps"))

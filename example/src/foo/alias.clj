@@ -3,4 +3,5 @@
   (:gen-class))
 
 (defn -main [& _]
-      (cache/fifo-cache-factory {:a 1 :b 2}))
+  (cache/fifo-cache-factory {:a 1 :b 2})
+  (println "✓ Tested lein-tools-deps :resolve-aliases"))
