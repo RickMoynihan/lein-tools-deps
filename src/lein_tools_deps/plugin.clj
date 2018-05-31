@@ -79,7 +79,7 @@
   (-> deps-files
       reader/read-deps))
 
-(defmulti leinize (fn [[dep-key dep-val]]
+(defmulti leinize (fn [[_ dep-val]]
                     (:deps/manifest dep-val)))
 
 (defmethod leinize :mvn [[artifact info]]
@@ -91,11 +91,11 @@
                            :exclusions
                            :scope])))
 
-(defmethod leinize :deps [[artifact info]]
+(defmethod leinize :deps [[_ info]]
   (:paths info))
 
 (defn filter-by-manifest [manifest-type tdeps]
-  (filter (fn [[artifact info]]
+  (filter (fn [[_ info]]
             (= manifest-type (:deps/manifest info)))
           tdeps))
 
@@ -157,13 +157,14 @@
 
   Returns a {:dependencies [coordinates]} datastructure suitable for
   meta-merging into a lein project map."
-  [project-root deps]
-  (let [all-deps (filter #(.exists %) deps)
-        deps (read-all-deps all-deps)
-        deps (absolute-deps project-root deps)
-        tdeps-map (deps/resolve-deps deps {})]
-    (merge (lein-dependencies tdeps-map)
-           (lein-source-paths project-root deps tdeps-map))))
+  [project-root required-aliases deps]
+   (let [all-deps (filter #(.exists %) deps)
+         deps (read-all-deps all-deps)
+         {:keys [aliases] :as deps} (absolute-deps project-root deps)
+         args-map (deps/combine-aliases deps required-aliases)
+         tdeps-map (deps/resolve-deps deps args-map)]
+     (merge (lein-dependencies tdeps-map)
+            (lein-source-paths project-root deps tdeps-map))))
 
 (def defunct-loc-keys #{:system :home})
 
@@ -172,10 +173,10 @@
 (defn loc-or-string? [l]
   (or (valid-loc-keys l) (string? l)))
 
-(defn apply-middleware [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+(defn apply-middleware [{{:keys [config-files resolve-aliases] :as config} :lein-tools-deps/config :as project}]
   (->> config-files
        (canonicalise-dep-locs config (:root project))
-       (resolve-deps (:root project))
+       (resolve-deps (:root project) resolve-aliases)
        (merge project)))
 
 (defn resolve-dependencies-with-deps-edn
