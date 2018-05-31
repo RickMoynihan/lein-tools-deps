@@ -24,7 +24,7 @@
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
-          (:source-paths deps)))))
+           (:source-paths deps)))))
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths
@@ -51,6 +51,14 @@
     (is (= (select-keys deps [:dependencies :source-paths])
            {:dependencies [['criterium/criterium "0.4.4"]]
             :source-paths ()}))))
+
+(deftest apply-middleware-extra-paths
+  (let [deps (sut/apply-middleware {:root                   (absolute-base-path)
+                                    :lein-tools-deps/config {:classpath-aliases [:test]
+                                                             :config-files      ["test-cases/alias-deps.edn"]}})]
+    (is (map? deps))
+    (is (= (:source-paths deps)
+           ["test"]))))
 
 (deftest absolute-file-test
   (let [base-path (absolute-base-path)]

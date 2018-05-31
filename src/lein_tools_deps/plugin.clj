@@ -151,7 +151,13 @@
                                             info)]))
                             (into {}))))))
 
-(defn resolve-deps
+(defn- make-classpath [{{:keys [classpath-aliases]} :lein-tools-deps/config :as project} deps]
+  (->> classpath-aliases
+       (deps/combine-aliases deps)
+       :extra-paths
+       (update project :source-paths concat)))
+
+(defn- resolve-deps
   "Takes a seq of java.io.File objects pointing to deps.edn files
   and merges them all before resolving their dependencies.
 
@@ -173,7 +179,9 @@
 
 (defn apply-middleware [project]
   (let [deps (make-deps project)]
-    (resolve-deps project deps)))
+    (-> project
+        (resolve-deps deps)
+        (make-classpath deps))))
 
 (def defunct-loc-keys #{:system :home})
 
