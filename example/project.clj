@@ -37,6 +37,8 @@
   :profiles {:cache {:lein-tools-deps/config {:resolve-aliases [:cache]}
                      :main foo.alias}}
  
-  :aot [foo.core]
+
+  :main foo.core
+  
   )
 

@@ -16,5 +16,5 @@ script:
   - lein test
   - lein install
   - cd example
-  - lein run -m foo.core
-  - lein with-profile cache run -m foo.alias
+  - lein run 
+  - lein with-profile cache run
