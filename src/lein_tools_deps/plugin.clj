@@ -158,17 +158,20 @@
   Returns a {:dependencies [coordinates]} datastructure suitable for
   meta-merging into a lein project map."
   [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config} deps]
-   (let [all-deps (filter #(.exists %) deps)
-         deps (read-all-deps all-deps)
-         deps (absolute-deps root deps)
-         args-map (deps/combine-aliases deps resolve-aliases)
+   (let [args-map (deps/combine-aliases deps resolve-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
      (merge (lein-dependencies tdeps-map)
             (lein-source-paths root deps tdeps-map))))
 
-(defn apply-middleware [{{:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+(defn make-deps [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
   (->> config-files
        (canonicalise-dep-locs config (:root project))
+       (filter #(.exists %))
+       read-all-deps
+       (absolute-deps root)))
+
+(defn apply-middleware [project]
+  (->> (make-deps project)
        (resolve-deps project)
        (merge project)))
 

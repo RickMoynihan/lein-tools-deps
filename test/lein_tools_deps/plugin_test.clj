@@ -18,9 +18,9 @@
     (is (= 2 (count canonicalised-files))
         ":system and supplied file == 2 files")))
 
-(deftest resolve-paths-to-source-paths
-  (let [deps (sut/resolve-deps {:root (absolute-base-path)}
-               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/basic-deps.edn"]))]
+(deftest apply-middleware-to-source-paths
+  (let [deps (sut/apply-middleware {:root (absolute-base-path)
+                                    :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
     (is (map? deps))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
@@ -33,9 +33,9 @@
     (is (map? deps))
     (is (= ["src" "test"] (:source-paths deps)))))
 
-(deftest resolve-deps-git-to-dependencies
-  (let [deps (sut/resolve-deps {:root (absolute-base-path)}
-               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/git-deps.edn"]))]
+(deftest apply-middleware-git-to-dependencies
+  (let [deps (sut/apply-middleware {:root (absolute-base-path)
+                                    :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
     (is (map? deps))
     (let [dependencies (:dependencies deps)]
       (is (>= (count dependencies) 2))
@@ -43,11 +43,12 @@
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
 
-(deftest resolve-deps-extra-deps
-  (let [deps (sut/resolve-deps {:root (absolute-base-path) :lein-tools-deps/config {:resolve-aliases [:bench]}}
-                               (sut/canonicalise-dep-locs {} (absolute-base-path) ["test-cases/alias-deps.edn"]))]
+(deftest apply-middleware-extra-paths
+  (let [deps (sut/apply-middleware {:root (absolute-base-path)
+                                    :lein-tools-deps/config {:resolve-aliases [:bench]
+                                                             :config-files ["test-cases/alias-deps.edn"]}})]
     (is (map? deps))
-    (is (= deps
+    (is (= (select-keys deps [:dependencies :source-paths])
            {:dependencies [['criterium/criterium "0.4.4"]]
             :source-paths ()}))))
 
