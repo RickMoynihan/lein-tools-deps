@@ -70,6 +70,17 @@
            [(str (absolute-base-path) "/path/to/my/clojure")]))
     (is (empty? (:dependencies project)))))
 
+(deftest apply-middleware-all-aliases
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:aliases [:all]
+                                                                :config-files      ["test-cases/alias-deps.edn"]}
+                                       :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+    (is (map? project))
+    (is (= (:source-paths project)
+           [(str (absolute-base-path) "/path/to/my/clojure")]))
+    (is (= (:dependencies project)
+           [['criterium/criterium "0.4.4"]]))))
+
 (deftest absolute-file-test
   (let [base-path (absolute-base-path)]
     (is (= (io/file base-path "deps.edn") (sut/absolute-file base-path "deps.edn")))
