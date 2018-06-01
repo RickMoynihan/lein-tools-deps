@@ -19,46 +19,56 @@
         ":system and supplied file == 2 files")))
 
 (deftest apply-middleware-to-source-paths
-  (let [deps (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
-    (is (map? deps))
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
+    (is (map? project))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
-           (:source-paths deps)))))
+           (:source-paths project)))))
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
-    (is (map? deps))
-    (is (= ["src" "test"] (:source-paths deps)))))
+    (let [deps (sut/resolve-deps (absolute-base-path)
+                                 (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
+      (is (map? deps))
+      (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest apply-middleware-git-to-dependencies
-  (let [deps (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
-    (is (map? deps))
-    (let [dependencies (:dependencies deps)]
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
+    (is (map? project))
+    (let [dependencies (:dependencies project)]
       (is (>= (count dependencies) 2))
       (is (every? #{'[clj-time/clj-time "0.14.2"]
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
 
 (deftest apply-middleware-extra-paths
-  (let [deps (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:resolve-aliases [:bench]
-                                                             :config-files ["test-cases/alias-deps.edn"]}})]
-    (is (map? deps))
-    (is (= (select-keys deps [:dependencies :source-paths])
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:resolve-aliases [:bench]
+                                                                :config-files    ["test-cases/alias-deps.edn"]}})]
+    (is (map? project))
+    (is (= (select-keys project [:dependencies :source-paths])
            {:dependencies [['criterium/criterium "0.4.4"]]
             :source-paths ()}))))
 
 (deftest apply-middleware-extra-paths
-  (let [deps (sut/apply-middleware {:root                   (absolute-base-path)
-                                    :lein-tools-deps/config {:classpath-aliases [:test]
-                                                             :config-files      ["test-cases/alias-deps.edn"]}})]
-    (is (map? deps))
-    (is (= (:source-paths deps)
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:classpath-aliases [:extra-paths-test]
+                                                                :config-files      ["test-cases/alias-deps.edn"]}})]
+    (is (map? project))
+    (is (= (:source-paths project)
            ["test"]))))
+
+(deftest apply-middleware-classpath-overrides
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:classpath-aliases [:classpath-overrides-test]
+                                                                :config-files      ["test-cases/alias-deps.edn"]}
+                                       :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+    (is (map? project))
+    (is (= (:source-paths project)
+           [(str (absolute-base-path) "/path/to/my/clojure")]))
+    (is (empty? (:dependencies project)))))
 
 (deftest absolute-file-test
   (let [base-path (absolute-base-path)]
@@ -70,22 +80,23 @@
 (deftest absolute-local-root-coords-test
   (let [base-path (absolute-base-path)]
     (is (= {:local/root (.getAbsolutePath (io/file base-path "foo"))}
-          (sut/absolute-local-root-coords base-path {:local/root "foo"})))
+          (sut/absolute-local-root-coords {:local/root "foo"} base-path)))
     (is (= {:local/root base-path}
-          (sut/absolute-local-root-coords base-path {:local/root base-path})))))
+          (sut/absolute-local-root-coords {:local/root base-path} base-path)))))
 
 (deftest absolute-coords-test
   (let [base-path (absolute-base-path)]
-    (is (= {:mvn/version "1.0.0"} (sut/absolute-coords base-path {:mvn/version "1.0.0"})))
+    (is (= {:mvn/version "1.0.0"} (sut/absolute-coords {:mvn/version "1.0.0"} base-path)))
     (is (= {:local/root (.getAbsolutePath (io/file base-path "foo"))}
-          (sut/absolute-coords base-path {:local/root "foo"})))))
+           (sut/absolute-coords {:local/root "foo"} base-path)))))
 
 (deftest absolute-deps-map-test
   (let [base-path (absolute-base-path)]
     (is (= {'some-lib  {:mvn/version "1.0.0"}
             'local-lib {:local/root (.getAbsolutePath (io/file base-path "foo"))}}
-          (sut/absolute-deps-map base-path {'some-lib  {:mvn/version "1.0.0"}
-                                            'local-lib {:local/root "foo"}})))))
+           (sut/absolute-deps-map {'some-lib  {:mvn/version "1.0.0"}
+                                   'local-lib {:local/root "foo"}}
+                                  base-path)))))
 
 (deftest absolute-deps-test
   (let [base-path (absolute-base-path)]
@@ -95,12 +106,13 @@
             :aliases {:test {:extra-deps {'some-lib2 {:mvn/version "1.1.0"}
                                           'local-lib2 {:local/root (.getAbsolutePath (io/file base-path "bar"))}}}
                       :bar {:main-opts ["foo" "bar"]}}}
-          (sut/absolute-deps base-path {:paths   ["foo"]
-                                        :deps    {'some-lib  {:mvn/version "1.0.0"}
-                                                  'local-lib {:local/root "foo"}}
-                                        :aliases {:test {:extra-deps {'some-lib2  {:mvn/version "1.1.0"}
-                                                                      'local-lib2 {:local/root "bar"}}}
-                                                  :bar  {:main-opts ["foo" "bar"]}}})))))
+           (sut/absolute-deps {:paths   ["foo"]
+                               :deps    {'some-lib  {:mvn/version "1.0.0"}
+                                         'local-lib {:local/root "foo"}}
+                               :aliases {:test {:extra-deps {'some-lib2  {:mvn/version "1.1.0"}
+                                                             'local-lib2 {:local/root "bar"}}}
+                                         :bar  {:main-opts ["foo" "bar"]}}}
+                              base-path)))))
 
 (deftest resolve-dependencies-with-deps-edn-test
   (let [project {:lein-tools-deps/config {:config-files []}}]

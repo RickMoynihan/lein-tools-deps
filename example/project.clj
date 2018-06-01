@@ -35,7 +35,9 @@
   ;;
   ;; So the :cache profile below will resolve-aliases for [:async :cache].
   :profiles {:resolve-alias-example {:lein-tools-deps/config {:resolve-aliases [:cache]}
-                                     :main foo.resolve-alias}}
+                                     :main foo.resolve-alias}
+             :classpath-alias-example {:lein-tools-deps/config {:classpath-aliases [:bench]}
+                                       :main foo.classpath-alias}}
  
 
   :main foo.core

@@ -18,3 +18,4 @@ script:
   - cd example
   - lein run 
   - lein with-profile resolve-alias-example run
+  - lein with-profile classpath-alias-example run

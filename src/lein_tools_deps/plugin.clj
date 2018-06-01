@@ -115,54 +115,63 @@
 (defn absolute-local-root-coords
   "Given a base path and :local/root coordinates, ensures the specified path
   is absolute relative to the base path."
-  [base-path {:keys [local/root]}]
+  [{:keys [local/root]} base-path]
   {:local/root (absolute-path base-path root)})
 
 (defn absolute-coords
   "Given a base path and dep coordinates, ensures any paths in the coordinates
   are absolute relative to the base path."
-  [base-path coords]
+  [coords base-path]
   (if (contains? coords :local/root)
-    (absolute-local-root-coords base-path coords)
+    (absolute-local-root-coords coords base-path)
     coords))
 
 (defn absolute-deps-map
   "Given a base path and a deps map (a mapping from lib symbol to
   coordinates), ensures that any relative paths embedded in coordinates are
   absolute relative to the base path."
-  [base-path deps-map]
+  [deps-map base-path]
   (->> deps-map
        (map (fn [[dep coords]]
-              [dep (absolute-coords base-path coords)]))
+              [dep (if (string? coords)
+                     (absolute-path base-path coords)
+                     (absolute-coords coords base-path))]))
+       (into {})))
+
+(defn- alias-absolute-deps-map
+  "Given a base path and a map of aliases, ensure that any relative paths
+  embedded in the extra-dep or classpath-overrides keys are absolute
+  relative to the base path."
+  [aliases base-path]
+  (->> aliases
+       (map (fn [[alias info]]
+              [alias (->> [:extra-deps :classpath-overrides]
+                          (select-keys info)
+                          keys
+                          (reduce (fn [acc k] (update acc k absolute-deps-map base-path)) info))]))
        (into {})))
 
 (defn absolute-deps
   "Given a base path and deps, ensures that all absolute paths in the deps
   (including relative deps embedded in aliases) are absolute relative to the
   base path."
-  [base-path deps]
+  [deps base-path]
   (-> deps
-    (update :deps (partial absolute-deps-map base-path))
-    (update :aliases (fn [aliases]
-                       (->> aliases
-                            (map (fn [[alias info]]
-                                   [alias (if (contains? info :extra-deps)
-                                            (update info :extra-deps (partial absolute-deps-map base-path))
-                                            info)]))
-                            (into {}))))))
+      (update :deps absolute-deps-map base-path)
+      (update :aliases alias-absolute-deps-map base-path)))
 
-(defn- make-classpath [{{:keys [classpath-aliases]} :lein-tools-deps/config :as project} deps]
-  (->> classpath-aliases
-       (deps/combine-aliases deps)
-       :extra-paths
-       (update project :source-paths concat)))
+(defn- make-classpath
+  "Resolves additional classpaths, meta merging them into the lein project map"
+  [{{:keys [classpath-aliases]} :lein-tools-deps/config :as project} deps]
+  (let [combined-aliases (deps/combine-aliases deps classpath-aliases)
+        classpath-overrides (:classpath-overrides combined-aliases)]
+    (-> project
+        (update :source-paths concat (:extra-paths combined-aliases))
+        (update :source-paths concat (vals classpath-overrides))
+        (update :dependencies (partial remove (fn [[sym _version]] (contains? classpath-overrides sym)))))))
 
 (defn- resolve-deps
-  "Takes a seq of java.io.File objects pointing to deps.edn files
-  and merges them all before resolving their dependencies.
-
-  Returns a {:dependencies [coordinates]} datastructure suitable for
-  meta-merging into a lein project map."
+  "Resolves all dependencies, meta merging them into the lein project map"
   [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config :as project} deps]
    (let [args-map (deps/combine-aliases deps resolve-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
@@ -170,12 +179,14 @@
          (update :dependencies concat (lein-dependencies tdeps-map))
          (update :source-paths concat (lein-source-paths root deps tdeps-map)))))
 
-(defn make-deps [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
-  (->> config-files
-       (canonicalise-dep-locs config (:root project))
-       (filter #(.exists %))
-       read-all-deps
-       (absolute-deps root)))
+(defn make-deps
+  "Reads and merges all of the deps-ref, returning a single deps map"
+  [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+  (as-> config-files $
+        (canonicalise-dep-locs config (:root project) $)
+        (filter #(.exists %) $)
+        (read-all-deps $)
+        (absolute-deps $ root)))
 
 (defn apply-middleware [project]
   (let [deps (make-deps project)]
