@@ -158,11 +158,7 @@
        (update project :source-paths concat)))
 
 (defn- resolve-deps
-  "Takes a seq of java.io.File objects pointing to deps.edn files
-  and merges them all before resolving their dependencies.
-
-  Returns a {:dependencies [coordinates]} datastructure suitable for
-  meta-merging into a lein project map."
+  "Resolves all dependencies, meta merging them into the lein project map"
   [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config :as project} deps]
    (let [args-map (deps/combine-aliases deps resolve-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
@@ -170,7 +166,9 @@
          (update :dependencies concat (lein-dependencies tdeps-map))
          (update :source-paths concat (lein-source-paths root deps tdeps-map)))))
 
-(defn make-deps [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+(defn make-deps
+  "Reads and merges all of the deps-ref, returning a single deps map"
+  [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
   (->> config-files
        (canonicalise-dep-locs config (:root project))
        (filter #(.exists %))

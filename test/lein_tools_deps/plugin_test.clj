@@ -19,8 +19,8 @@
         ":system and supplied file == 2 files")))
 
 (deftest apply-middleware-to-source-paths
-  (let [project (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
     (is (map? project))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
@@ -28,14 +28,14 @@
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
-    (is (map? deps))
-    (is (= ["src" "test"] (:source-paths deps)))))
+    (let [deps (sut/resolve-deps (absolute-base-path)
+                                 (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
+      (is (map? deps))
+      (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest apply-middleware-git-to-dependencies
-  (let [project (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
     (is (map? project))
     (let [dependencies (:dependencies project)]
       (is (>= (count dependencies) 2))
@@ -44,9 +44,9 @@
                   dependencies)))))
 
 (deftest apply-middleware-extra-paths
-  (let [project (sut/apply-middleware {:root (absolute-base-path)
-                                    :lein-tools-deps/config {:resolve-aliases [:bench]
-                                                             :config-files ["test-cases/alias-deps.edn"]}})]
+  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
+                                       :lein-tools-deps/config {:resolve-aliases [:bench]
+                                                                :config-files    ["test-cases/alias-deps.edn"]}})]
     (is (map? project))
     (is (= (select-keys project [:dependencies :source-paths])
            {:dependencies [['criterium/criterium "0.4.4"]]
