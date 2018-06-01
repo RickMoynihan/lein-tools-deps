@@ -25,6 +25,6 @@
            :1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
            :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
            :cache {:extra-deps {org.clojure/core.cache {:mvn/version "0.7.1"}}}
-           :async {:extra-deps {org.clojure/core.async {:mvn/version "0.4.474"}}}}
- 
+           :async {:extra-deps {org.clojure/core.async {:mvn/version "0.4.474"}}}
+           :bench {:classpath-overrides {criterium/criterium "./criterium/src"}}}
  }
