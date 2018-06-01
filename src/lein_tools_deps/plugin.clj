@@ -79,7 +79,7 @@
   (-> deps-files
       reader/read-deps))
 
-(defmulti leinize (fn [[_ dep-val]]
+(defmulti leinize (fn [[_dep-key dep-val]]
                     (:deps/manifest dep-val)))
 
 (defmethod leinize :mvn [[artifact info]]
@@ -91,26 +91,26 @@
                            :exclusions
                            :scope])))
 
-(defmethod leinize :deps [[_ info]]
+(defmethod leinize :deps [[_artifact info]]
   (:paths info))
 
 (defn filter-by-manifest [manifest-type tdeps]
-  (filter (fn [[_ info]]
+  (filter (fn [[_artifact info]]
             (= manifest-type (:deps/manifest info)))
           tdeps))
 
 (defn lein-dependencies [tdeps]
-  {:dependencies (->> tdeps
-                      (filter-by-manifest :mvn)
-                      (mapv leinize))})
+  (->> tdeps
+       (filter-by-manifest :mvn)
+       (mapv leinize)))
 
 (defn lein-source-paths [project-root merged-deps tdeps]
-  {:source-paths (->> tdeps
-                      (filter-by-manifest :deps)
-                      (mapv leinize)
-                      (apply concat)
-                      (into (:paths merged-deps))
-                      (map (partial absolute-path project-root)))})
+  (->> tdeps
+       (filter-by-manifest :deps)
+       (mapv leinize)
+       (apply concat)
+       (into (:paths merged-deps))
+       (map (partial absolute-path project-root))))
 
 (defn absolute-local-root-coords
   "Given a base path and :local/root coordinates, ensures the specified path
@@ -151,20 +151,37 @@
                                             info)]))
                             (into {}))))))
 
-(defn resolve-deps
+(defn- make-classpath [{{:keys [classpath-aliases]} :lein-tools-deps/config :as project} deps]
+  (->> classpath-aliases
+       (deps/combine-aliases deps)
+       :extra-paths
+       (update project :source-paths concat)))
+
+(defn- resolve-deps
   "Takes a seq of java.io.File objects pointing to deps.edn files
   and merges them all before resolving their dependencies.
 
   Returns a {:dependencies [coordinates]} datastructure suitable for
   meta-merging into a lein project map."
-  [project-root required-aliases deps]
-   (let [all-deps (filter #(.exists %) deps)
-         deps (read-all-deps all-deps)
-         {:keys [aliases] :as deps} (absolute-deps project-root deps)
-         args-map (deps/combine-aliases deps required-aliases)
+  [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config :as project} deps]
+   (let [args-map (deps/combine-aliases deps resolve-aliases)
          tdeps-map (deps/resolve-deps deps args-map)]
-     (merge (lein-dependencies tdeps-map)
-            (lein-source-paths project-root deps tdeps-map))))
+     (-> project
+         (update :dependencies concat (lein-dependencies tdeps-map))
+         (update :source-paths concat (lein-source-paths root deps tdeps-map)))))
+
+(defn make-deps [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+  (->> config-files
+       (canonicalise-dep-locs config (:root project))
+       (filter #(.exists %))
+       read-all-deps
+       (absolute-deps root)))
+
+(defn apply-middleware [project]
+  (let [deps (make-deps project)]
+    (-> project
+        (resolve-deps deps)
+        (make-classpath deps))))
 
 (def defunct-loc-keys #{:system :home})
 
@@ -172,12 +189,6 @@
 
 (defn loc-or-string? [l]
   (or (valid-loc-keys l) (string? l)))
-
-(defn apply-middleware [{{:keys [config-files resolve-aliases] :as config} :lein-tools-deps/config :as project}]
-  (->> config-files
-       (canonicalise-dep-locs config (:root project))
-       (resolve-deps (:root project) resolve-aliases)
-       (merge project)))
 
 (defn resolve-dependencies-with-deps-edn
   "Inject relevant keys from deps.edn files into the leiningen project map
