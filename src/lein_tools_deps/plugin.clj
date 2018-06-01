@@ -162,8 +162,8 @@
 
 (defn- make-classpath
   "Resolves additional classpaths, meta merging them into the lein project map"
-  [{{:keys [classpath-aliases]} :lein-tools-deps/config :as project} deps]
-  (let [combined-aliases (deps/combine-aliases deps classpath-aliases)
+  [{{:keys [classpath-aliases aliases]} :lein-tools-deps/config :as project} deps]
+  (let [combined-aliases (deps/combine-aliases deps (concat classpath-aliases aliases))
         classpath-overrides (:classpath-overrides combined-aliases)]
     (-> project
         (update :source-paths concat (:extra-paths combined-aliases))
@@ -172,8 +172,8 @@
 
 (defn- resolve-deps
   "Resolves all dependencies, meta merging them into the lein project map"
-  [{:keys [root] {:keys [resolve-aliases]} :lein-tools-deps/config :as project} deps]
-   (let [args-map (deps/combine-aliases deps resolve-aliases)
+  [{:keys [root] {:keys [resolve-aliases aliases]} :lein-tools-deps/config :as project} deps]
+   (let [args-map (deps/combine-aliases deps (concat resolve-aliases aliases))
          tdeps-map (deps/resolve-deps deps args-map)]
      (-> project
          (update :dependencies concat (lein-dependencies tdeps-map))
