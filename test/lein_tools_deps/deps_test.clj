@@ -1,13 +1,14 @@
 (ns lein-tools-deps.deps-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [lein-tools-deps.deps :as sut]))
+            [lein-tools-deps.deps :as sut]
+            [lein-tools-deps.env :as env]))
 
 (defn absolute-base-path []
   (.getAbsolutePath (io/file "")))
 
 (deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-locs {} (absolute-base-path) [:install "test-cases/basic-deps.edn"])]
+  (let [canonicalised-files (sut/canonicalise-dep-locs (env/clojure-env {}) (absolute-base-path) [:install "test-cases/basic-deps.edn"])]
     (is (every? #(instance? java.io.File %) canonicalised-files))
     (is (every? #(.exists %) canonicalised-files))
     (is (= 2 (count canonicalised-files))

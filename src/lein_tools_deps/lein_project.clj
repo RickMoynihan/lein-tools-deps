@@ -35,7 +35,6 @@
        (into (:paths merged-deps))
        (map (partial file-attributes/absolute-path project-root))))
 
-
 (defn make-classpath
   "Resolves additional classpaths, meta merging them into the lein project map"
   [{{:keys [classpath-aliases aliases]} :lein-tools-deps/config :as project} deps]

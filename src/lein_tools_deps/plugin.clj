@@ -1,6 +1,8 @@
 (ns lein-tools-deps.plugin
   (:require [leiningen.core.main :as lein]
+            [clojure.tools.deps.alpha.reader :as reader]
             [lein-tools-deps.deps :as deps]
+            [lein-tools-deps.env :as env]
             [lein-tools-deps.lein-project :as lein-project]))
 
 ;; load extensions
@@ -9,8 +11,8 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
-(defn apply-middleware [project]
-  (let [deps (deps/make-deps project)]
+(defn apply-middleware [exists? reader env project]
+  (let [deps (deps/make-deps exists? reader env project)]
     (-> project
         (lein-project/resolve-deps deps)
         (lein-project/make-classpath deps))))
@@ -35,7 +37,7 @@
     (seq config-files)
 
     (if (every? loc-or-string? config-files)
-      (apply-middleware project)
+      (apply-middleware env/exists? reader/read-deps (env/clojure-env project) project)
       (do (lein/warn  "Every element in :lein-tools-deps/config :config-files must either be a file-path string or one of the location keys" valid-loc-keys)
           (lein/exit 1)))
       

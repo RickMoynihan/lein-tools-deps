@@ -1,38 +1,13 @@
 (ns lein-tools-deps.deps
-  (:require [clojure.java.shell :as shell]
-            [clojure.java.io :as io]
-            [clojure.tools.deps.alpha.reader :as reader]
+  (:require [clojure.java.io :as io]
             [lein-tools-deps.file-attributes :as file-attributes]))
-
-(def default-clojure-executables ["/usr/local/bin/clojure"])
-
-(defn- clojure-exe
-  [config]
-  (let [clojure-paths (or (:clojure-executables config) default-clojure-executables)
-        exe (->> clojure-paths
-                 (filter #(.exists (io/file %)))
-                 first)]
-    (or exe (throw (ex-info "Could not find clojure executable" {:tried-paths clojure-paths})))))
-
-(defn- scrape-clojure-env
-  [config]
-  (let [exe (clojure-exe config)
-        {:keys [out exit] :as result} (shell/sh exe "-Sdescribe")]
-    (if (zero? exit)
-      (read-string out)
-      (throw (ex-info "Unable to locate Clojure's edn files" result)))))
-
-(def clojure-env
-  "Returns a map describing the environment known to clj/clojure:
-  {:config-files [ ... ]}"
-  (memoize scrape-clojure-env))
 
 (defn make-dep-loc-lookup
   "Returns a function mapping from a loc(ation)
   keyword (either :install, :user or :project) to a file
   location.  If the value is a string it is returned as is."
-  [config]
-  (let [[system-deps home-deps project-deps] (:config-files (clojure-env config))
+  [{:keys [config-files]}]
+  (let [[system-deps home-deps project-deps] config-files
         project-deps (or project-deps "deps.edn")]
     (fn [i]
       (if (string? i)
@@ -44,10 +19,10 @@
 (defn canonicalise-dep-locs
   "Returns a seq of absolute java.io.File given a seq of dep-refs.  Any
   relative dep-refs will be made absolute relative to project-root."
-  [config project-root dep-refs]
-  (let [location->dep-path (shell/with-sh-dir project-root (make-dep-loc-lookup config))]
+  [env project-root dep-refs]
+  (let [location->dep-path (make-dep-loc-lookup env)]
     (->> dep-refs
-         (map #(location->dep-path %))
+         (map location->dep-path)
          (map io/file)
          (map (partial file-attributes/absolute-file project-root)))))
 
@@ -101,10 +76,10 @@
 
 (defn make-deps
   "Reads and merges all of the deps-ref, returning a single deps map"
-  [{:keys [root] {:keys [config-files] :as config} :lein-tools-deps/config :as project}]
+  [exists? read-deps env {:keys [root] {:keys [config-files]} :lein-tools-deps/config}]
   (as-> config-files $
-        (canonicalise-dep-locs config (:root project) $)
-        (filter #(.exists %) $)
-        (reader/read-deps $)
+        (canonicalise-dep-locs env root $)
+        (filter exists? $)
+        (read-deps $)
         (absolute-deps $ root)))
 
