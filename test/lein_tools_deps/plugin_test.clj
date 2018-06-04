@@ -43,7 +43,7 @@
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
 
-(deftest apply-middleware-extra-paths
+(deftest apply-middleware-extra-deps
   (let [project (sut/apply-middleware {:root                   (absolute-base-path)
                                        :lein-tools-deps/config {:resolve-aliases [:bench]
                                                                 :config-files    ["test-cases/alias-deps.edn"]}})]
