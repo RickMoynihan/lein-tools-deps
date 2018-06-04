@@ -110,6 +110,24 @@ the first match being used.  The default is currently set to
 uses the `clojure` executable to determine some system specific
 defaults, such as the location of the `:install` `:config-files`.
 
+#### `:resolve-aliases`
+
+A vector of `deps.edn` alias names whose `:extra-deps`, `override-deps`
+and `:default-deps` will be resolved with the same semantics as if they
+had been used with the `-R` option to the `clj` tool.
+
+#### `:classpath-aliases`
+
+A vector of `deps.edn` alias names whose `:extra-paths` and
+`classpath-overrides` will be applied with the same semantics as if
+they had been used with the `-C` option to the `clj` tool.
+
+#### `:aliases`
+
+A vector of `deps.edn` alias names whose values are resolved in the same
+way as for both `:resolve-aliases` and `classpath-aliases` above.
+Equivalent to the `-A` option of the `clj` tool.
+
 ## Prerequisites
 
 You will need the following base dependencies installed:
