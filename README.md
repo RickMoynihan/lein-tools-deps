@@ -110,6 +110,41 @@ the first match being used.  The default is currently set to
 uses the `clojure` executable to determine some system specific
 defaults, such as the location of the `:install` `:config-files`.
 
+#### `:resolve-aliases`
+
+A vector of `deps.edn` alias names whose `:extra-deps`, `override-deps`
+and `:default-deps` will be resolved with the same semantics as if they
+had been used with the `-R` option to the `clj` tool.
+
+#### `:classpath-aliases`
+
+A vector of `deps.edn` alias names whose `:extra-paths` and
+`classpath-overrides` will be applied with the same semantics as if
+they had been used with the `-C` option to the `clj` tool.
+
+#### `:aliases`
+
+A vector of `deps.edn` alias names whose values are resolved in the same
+way as for both `:resolve-aliases` and `classpath-aliases` above.
+Equivalent to the `-A` option of the `clj` tool.
+
+### Profiles
+
+Dependencies can be specified on a per profile basis, in much the same way
+as leiningen dependencies, with any additional dependencies being
+concatenated to the already existing vector.
+
+E.g.
+
+```clojure
+    :lein-tools-deps/config {:config-files ["foo.edn"]}
+    :profiles {:dev {:lein-tools-deps/config ["bar.edn" "baz.edn"]}}
+```
+results a logical ```:config-files``` value of ```["foo.edn" "bar.edn"
+"baz.edn"]```  when the ```:dev``` profile is used.
+
+Aliases are resolved in a similar fashion.
+
 ## Prerequisites
 
 You will need the following base dependencies installed:
