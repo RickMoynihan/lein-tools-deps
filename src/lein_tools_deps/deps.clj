@@ -1,6 +1,8 @@
 (ns lein-tools-deps.deps
   (:require [clojure.java.io :as io]
-            [lein-tools-deps.file-attributes :as file-attributes]))
+            [lein-tools-deps.file-attributes :as file-attributes]
+            [lein-tools-deps.env :as env]
+            [clojure.tools.deps.alpha.reader :as reader]))
 
 (defn make-dep-loc-lookup
   "Returns a function mapping from a loc(ation)
@@ -76,10 +78,12 @@
 
 (defn make-deps
   "Reads and merges all of the deps-ref, returning a single deps map"
-  [exists? read-deps env {:keys [root] {:keys [config-files]} :lein-tools-deps/config}]
-  (as-> config-files $
-        (canonicalise-dep-locs env root $)
-        (filter exists? $)
-        (read-deps $)
-        (absolute-deps $ root)))
+  ([exists? read-deps env {:keys [root] {:keys [config-files]} :lein-tools-deps/config}]
+   (as-> config-files $
+         (canonicalise-dep-locs env root $)
+         (filter exists? $)
+         (read-deps $)
+         (absolute-deps $ root)))
+  ([env project]
+    (make-deps env/exists? reader/read-deps env project)))
 

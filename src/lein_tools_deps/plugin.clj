@@ -11,11 +11,14 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
-(defn apply-middleware [exists? reader env project]
-  (let [deps (deps/make-deps exists? reader env project)]
-    (-> project
-        (lein-project/resolve-deps deps)
-        (lein-project/make-classpath deps))))
+(defn apply-middleware
+  ([exists? reader env project]
+   (let [deps (deps/make-deps exists? reader env project)]
+     (-> project
+         (lein-project/resolve-deps deps)
+         (lein-project/make-classpath deps))))
+  ([project]
+    (apply-middleware env/exists? reader/read-deps (env/clojure-env project) project)))
 
 (def defunct-loc-keys #{:system :home})
 
@@ -37,7 +40,7 @@
     (seq config-files)
 
     (if (every? loc-or-string? config-files)
-      (apply-middleware env/exists? reader/read-deps (env/clojure-env project) project)
+      (apply-middleware project)
       (do (lein/warn  "Every element in :lein-tools-deps/config :config-files must either be a file-path string or one of the location keys" valid-loc-keys)
           (lein/exit 1)))
       
