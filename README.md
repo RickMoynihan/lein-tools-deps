@@ -67,7 +67,7 @@ Simply add the following to your plugins and middleware vectors,
 respectively, in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.4.0"]]
+  :plugins [[lein-tools-deps "0.4.1"]]
 ```
 
 ```clojure

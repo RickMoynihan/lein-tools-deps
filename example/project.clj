@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
   
-  :plugins [[lein-tools-deps "0.4.1-SNAPSHOT"]]
+  :plugins [[lein-tools-deps "0.4.2-SNAPSHOT"]]
 
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
 
