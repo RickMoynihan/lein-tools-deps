@@ -67,7 +67,7 @@ Simply add the following to your plugins and middleware vectors,
 respectively, in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.4.0-SNAPSHOT"]]
+  :plugins [[lein-tools-deps "0.4.0"]]
 ```
 
 ```clojure
@@ -89,7 +89,7 @@ You can now delete your `:dependencies` vector from `project.clj`.
 
 > Note: With `lein-tools-deps` `0.3.0-SNAPSHOT` and earlier, the
 > config value was a vector and looked like `:tools/deps [:install
-> :user :project]`, as of 0.4.0-SNAPSHOT it changed to the above map
+> :user :project]`, as of 0.4.0 it changed to the above map
 > based syntax.
 
 ### Supported configuration options
