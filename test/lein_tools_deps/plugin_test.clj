@@ -1,7 +1,9 @@
 (ns lein-tools-deps.plugin-test
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [lein-tools-deps.plugin :as sut])
+            [lein-tools-deps.plugin :as sut]
+            [clojure.tools.deps.alpha.reader :as reader]
+            [lein-tools-deps.env :as env])
   (:import (clojure.lang ExceptionInfo)))
 
 ; The mere presence of this file means that `lein test` will trigger a compilation
@@ -10,9 +12,11 @@
 (defn absolute-base-path []
   (.getAbsolutePath (io/file "")))
 
+(def apply-middleware (partial sut/apply-middleware env/exists? reader/read-deps (env/clojure-env {})))
+
 (deftest apply-middleware-to-source-paths
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
     (is (map? project))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
@@ -26,8 +30,8 @@
       (is (= ["src" "test"] (:source-paths deps)))))
 
 (deftest apply-middleware-git-to-dependencies
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
     (is (map? project))
     (let [dependencies (:dependencies project)]
       (is (>= (count dependencies) 2))
@@ -36,37 +40,37 @@
                   dependencies)))))
 
 (deftest apply-middleware-extra-deps
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:resolve-aliases [:bench]
-                                                                :config-files    ["test-cases/alias-deps.edn"]}})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:resolve-aliases [:bench]
+                                                            :config-files    ["test-cases/alias-deps.edn"]}})]
     (is (map? project))
     (is (= (select-keys project [:dependencies :source-paths])
            {:dependencies [['criterium/criterium "0.4.4"]]
             :source-paths ()}))))
 
 (deftest apply-middleware-extra-paths
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:classpath-aliases [:extra-paths-test]
-                                                                :config-files      ["test-cases/alias-deps.edn"]}})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:classpath-aliases [:extra-paths-test]
+                                                            :config-files      ["test-cases/alias-deps.edn"]}})]
     (is (map? project))
     (is (= (:source-paths project)
            ["test"]))))
 
 (deftest apply-middleware-classpath-overrides
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:classpath-aliases [:classpath-overrides-test]
-                                                                :config-files      ["test-cases/alias-deps.edn"]}
-                                       :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:classpath-aliases [:classpath-overrides-test]
+                                                            :config-files      ["test-cases/alias-deps.edn"]}
+                                   :dependencies           [['org.clojure/clojure "1.9.0"]]})]
     (is (map? project))
     (is (= (:source-paths project)
            [(str (absolute-base-path) "/path/to/my/clojure")]))
     (is (empty? (:dependencies project)))))
 
 (deftest apply-middleware-all-aliases
-  (let [project (sut/apply-middleware {:root                   (absolute-base-path)
-                                       :lein-tools-deps/config {:aliases [:all]
-                                                                :config-files      ["test-cases/alias-deps.edn"]}
-                                       :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:aliases      [:all]
+                                                            :config-files ["test-cases/alias-deps.edn"]}
+                                   :dependencies           [['org.clojure/clojure "1.9.0"]]})]
     (is (map? project))
     (is (= (:source-paths project)
            [(str (absolute-base-path) "/path/to/my/clojure")]))
@@ -80,7 +84,7 @@
   (let [project {:lein-tools-deps/config {}}]
     (is (= (sut/resolve-dependencies-with-deps-edn project)
            project)))
-  
+
   (let [project {:lein-tools-deps/config {:config-files [:bad-location]}}]
     (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn project))))
   (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn {}))))
