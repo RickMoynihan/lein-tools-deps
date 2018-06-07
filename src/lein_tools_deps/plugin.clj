@@ -11,8 +11,12 @@
 (require 'clojure.tools.deps.alpha.extensions.local)
 (require 'clojure.tools.deps.alpha.extensions.maven)
 
+(def ^:private long-running-process-warning
+  (memoize #(lein/warn "If there are a lot of uncached dependencies this might take a while ...")))
+
 (defn apply-middleware
   ([exists? reader env project]
+   (long-running-process-warning)
    (let [deps (deps/make-deps exists? reader env project)]
      (-> project
          (lein-project/resolve-deps deps)
