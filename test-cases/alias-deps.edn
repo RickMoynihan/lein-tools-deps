@@ -1,0 +1,7 @@
+{:aliases   {:bench {:extra-deps {criterium/criterium {:mvn/version "0.4.4"}}}
+             :extra-paths-test {:extra-paths ["test"]}
+             :classpath-overrides-test {:classpath-overrides {org.clojure/clojure "path/to/my/clojure"}}
+             :all {:extra-deps {criterium/criterium {:mvn/version "0.4.4"}}
+                   :classpath-overrides {org.clojure/clojure "path/to/my/clojure"}}}
+ :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
+             "clojars" {:url "https://repo.clojars.org/"}}}

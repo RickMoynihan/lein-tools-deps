@@ -2,8 +2,9 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [lein-tools-deps.plugin :as sut]
-            [lein-tools-deps.plugin :as plugin])
-  (:import (java.io File)))
+            [clojure.tools.deps.alpha.reader :as reader]
+            [lein-tools-deps.env :as env])
+  (:import (clojure.lang ExceptionInfo)))
 
 ; The mere presence of this file means that `lein test` will trigger a compilation
 ; of lein-tools-deps.plugin and at least we can know if it builds successfully.
@@ -11,76 +12,80 @@
 (defn absolute-base-path []
   (.getAbsolutePath (io/file "")))
 
-(deftest canonicalise-dep-refs-test
-  (let [canonicalised-files (sut/canonicalise-dep-locs (absolute-base-path) [:system "test-cases/basic-deps.edn"])]
-    (is (every? #(instance? java.io.File %) canonicalised-files))
-    (is (every? #(.exists %) canonicalised-files))
-    (is (= 2 (count canonicalised-files))
-        ":system and supplied file == 2 files")))
+(def apply-middleware (partial sut/apply-middleware env/exists? reader/read-deps (env/clojure-env {})))
 
-(deftest resolve-paths-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/basic-deps.edn"]))]
-    (is (map? deps))
+(deftest apply-middleware-to-source-paths
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:config-files ["test-cases/basic-deps.edn"]}})]
+    (is (map? project))
     (is (= [(.getAbsolutePath (io/file (absolute-base-path) "src"))
             (.getAbsolutePath (io/file (absolute-base-path) "test"))]
-          (:source-paths deps)))))
+           (:source-paths project)))))
 
 ;; TODO fix this test up properly.
 #_(deftest resolve-local-root-to-source-paths
-  (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
-    (is (map? deps))
-    (is (= ["src" "test"] (:source-paths deps)))))
+    (let [deps (sut/resolve-deps (absolute-base-path)
+                                 (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/local-root-deps.edn"]))]
+      (is (map? deps))
+      (is (= ["src" "test"] (:source-paths deps)))))
 
-(deftest resolve-deps-git-to-dependencies
-  (let [deps (sut/resolve-deps (absolute-base-path)
-               (sut/canonicalise-dep-locs (absolute-base-path) ["test-cases/git-deps.edn"]))]
-    (is (map? deps))
-    (let [dependencies (:dependencies deps)]
+(deftest apply-middleware-git-to-dependencies
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:config-files ["test-cases/git-deps.edn"]}})]
+    (is (map? project))
+    (let [dependencies (:dependencies project)]
       (is (>= (count dependencies) 2))
       (is (every? #{'[clj-time/clj-time "0.14.2"]
                     '[joda-time/joda-time "2.9.7"]}
                   dependencies)))))
 
-(deftest absolute-file-test
-  (let [base-path (absolute-base-path)]
-    (is (= (io/file base-path "deps.edn") (sut/absolute-file base-path "deps.edn")))
-    (is (= (io/file base-path "foo" "deps.edn") (sut/absolute-file base-path (str "foo" File/separator "deps.edn"))))
-    (let [abs-file (.getAbsoluteFile (io/file "some_dir" "deps.edn"))]
-      (is (= abs-file (sut/absolute-file base-path abs-file))))))
+(deftest apply-middleware-extra-deps
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:resolve-aliases [:bench]
+                                                            :config-files    ["test-cases/alias-deps.edn"]}})]
+    (is (map? project))
+    (is (= (select-keys project [:dependencies :source-paths])
+           {:dependencies [['criterium/criterium "0.4.4"]]
+            :source-paths ()}))))
 
-(deftest absolute-local-root-coords-test
-  (let [base-path (absolute-base-path)]
-    (is (= {:local/root (.getAbsolutePath (io/file base-path "foo"))}
-          (sut/absolute-local-root-coords base-path {:local/root "foo"})))
-    (is (= {:local/root base-path}
-          (sut/absolute-local-root-coords base-path {:local/root base-path})))))
+(deftest apply-middleware-extra-paths
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:classpath-aliases [:extra-paths-test]
+                                                            :config-files      ["test-cases/alias-deps.edn"]}})]
+    (is (map? project))
+    (is (= (:source-paths project)
+           ["test"]))))
 
-(deftest absolute-coords-test
-  (let [base-path (absolute-base-path)]
-    (is (= {:mvn/version "1.0.0"} (sut/absolute-coords base-path {:mvn/version "1.0.0"})))
-    (is (= {:local/root (.getAbsolutePath (io/file base-path "foo"))}
-          (sut/absolute-coords base-path {:local/root "foo"})))))
+(deftest apply-middleware-classpath-overrides
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:classpath-aliases [:classpath-overrides-test]
+                                                            :config-files      ["test-cases/alias-deps.edn"]}
+                                   :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+    (is (map? project))
+    (is (= (:source-paths project)
+           [(str (absolute-base-path) "/path/to/my/clojure")]))
+    (is (empty? (:dependencies project)))))
 
-(deftest absolute-deps-map-test
-  (let [base-path (absolute-base-path)]
-    (is (= {'some-lib  {:mvn/version "1.0.0"}
-            'local-lib {:local/root (.getAbsolutePath (io/file base-path "foo"))}}
-          (sut/absolute-deps-map base-path {'some-lib  {:mvn/version "1.0.0"}
-                                            'local-lib {:local/root "foo"}})))))
+(deftest apply-middleware-all-aliases
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:aliases      [:all]
+                                                            :config-files ["test-cases/alias-deps.edn"]}
+                                   :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+    (is (map? project))
+    (is (= (:source-paths project)
+           [(str (absolute-base-path) "/path/to/my/clojure")]))
+    (is (= (:dependencies project)
+           [['criterium/criterium "0.4.4"]]))))
 
-(deftest absolute-deps-test
-  (let [base-path (absolute-base-path)]
-    (is (= {:paths ["foo"]
-            :deps  {'some-lib  {:mvn/version "1.0.0"}
-                    'local-lib {:local/root (.getAbsolutePath (io/file base-path "foo"))}}
-            :aliases {:test {:extra-deps {'some-lib2 {:mvn/version "1.1.0"}
-                                          'local-lib2 {:local/root (.getAbsolutePath (io/file base-path "bar"))}}}
-                      :bar {:main-opts ["foo" "bar"]}}}
-          (sut/absolute-deps base-path {:paths   ["foo"]
-                                        :deps    {'some-lib  {:mvn/version "1.0.0"}
-                                                  'local-lib {:local/root "foo"}}
-                                        :aliases {:test {:extra-deps {'some-lib2  {:mvn/version "1.1.0"}
-                                                                      'local-lib2 {:local/root "bar"}}}
-                                                  :bar  {:main-opts ["foo" "bar"]}}})))))
+(deftest resolve-dependencies-with-deps-edn-test
+  (let [project {:lein-tools-deps/config {:config-files []}}]
+    (is (= (sut/resolve-dependencies-with-deps-edn project)
+           project)))
+  (let [project {:lein-tools-deps/config {}}]
+    (is (= (sut/resolve-dependencies-with-deps-edn project)
+           project)))
+
+  (let [project {:lein-tools-deps/config {:config-files [:bad-location]}}]
+    (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn project))))
+  (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn {}))))
+
