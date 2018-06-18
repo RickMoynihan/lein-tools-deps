@@ -1,8 +1,8 @@
 # lein-tools-deps
 
 A leiningen plugin that lets you
-use [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
-`deps.edn` dependencies in your leiningen project.
+share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
+`deps.edn` dependencies with your leiningen project build.
 
 ## Why use leiningen and deps.edn?
 
@@ -18,7 +18,7 @@ However at its core `deps.edn` and the CLI tools are just a simple
 system that provide better facilities for resolving dependencies and
 building a java classpath.  They actively avoid being a build tool,
 and consequently can't be used in isolation to build a project, `:aot`
-compile it and `uberjar` it.
+compile it, `uberjar` it, etc...
 
 Leiningen is the incumbent build tool for Clojure projects.  It's well
 supported, with a thriving plugin ecosystem, and is the default choice
@@ -52,13 +52,13 @@ constraints tend to be more uniform and familiar.  Leiningen projects
 are harder to turn into unique snowflakes, which might be better or
 worse for you.
 
-If you don't need anything fancy and want to just get started quickly,
-I'd recommend Leiningen over Boot.  If you don't need to `:aot`, or to
-build your Clojure at all, and your development environment and
-prefered tools support it go lightweight and just use `clj` and
-`deps.edn`.
+If you don't need anything fancy (like a combined Clojurescript/Clojure 
+build) and want to just get started quickly, I'd recommend Leiningen 
+over Boot.  If you don't need to `:aot`, or to build your Clojure at 
+all, and your development environment and prefered tools support it go 
+lightweight and just use `clj` and `deps.edn`.
 
-If you want to integrate boot with tools.deps you can via @seancorfield's 
+If you want to integrate boot with `tools.deps` you can via @seancorfield's 
 [boot-tools-deps](https://github.com/seancorfield/boot-tools-deps/).
 
 ## Usage
@@ -130,9 +130,11 @@ Equivalent to the `-A` option of the `clj` tool.
 
 ### Profiles
 
-Dependencies can be specified on a per profile basis, in much the same way
-as leiningen dependencies, with any additional dependencies being
-concatenated to the already existing vector.
+`lein-tools-deps` works with Leiningen profiles, allowing you to specify 
+dependencies on a per profile basis.  We support the use of any configuration
+options in Leiningen profiles, which will follow Leiningen's standard 
+`meta-merge` semantics for each of the configuration options above.  Profiles 
+are merged before `tools.deps` resolution.
 
 E.g.
 
@@ -143,7 +145,12 @@ E.g.
 results a logical ```:config-files``` value of ```["foo.edn" "bar.edn"
 "baz.edn"]```  when the ```:dev``` profile is used.
 
-Aliases are resolved in a similar fashion.
+Aliases and all other options are resolved in a similar fashion, and support
+the use of Leiningen's `^:replace`/`^:displace` metadata flags, to control the
+merge.
+
+One of the benefits of `lein-tools-deps` is that you can use profiles to group
+various combinations of `:aliases` etc under a single profile name.
 
 ## Prerequisites
 
@@ -155,17 +162,17 @@ You will need the following base dependencies installed:
 
 ## Project Status
 
-**VERY ALPHA**
+**ALPHA** because `tools.deps` is still `.alpha`.
 
 [![Build Status](https://travis-ci.org/RickMoynihan/lein-tools-deps.svg?branch=master)](https://travis-ci.org/RickMoynihan/lein-tools-deps)
 
-This is almost entirely untested, so don't rely on it yet.  PRs &
-ideas for future development welcome.
+PRs & ideas for future development welcome.
 
 Please see the [issue tracker](https://github.com/RickMoynihan/lein-tools-deps/issues)
 
 ## With thanks to
 
+- @HughPowell
 - @mfikes
 - @seancorfield
 - @puredanger
