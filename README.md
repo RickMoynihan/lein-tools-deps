@@ -158,7 +158,7 @@ You will need the following base dependencies installed:
 
 - Java 8 (recommended)
 - Leiningen 2.8.1
-- [Clojure 1.9.0+ CLI Tools](https://clojure.org/guides/getting_started)
+- [Clojure CLI Tools (1.9.0.341 or above)](https://clojure.org/guides/getting_started)
 
 ## Project Status
 
