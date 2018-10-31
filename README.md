@@ -26,7 +26,7 @@ in the Clojure world if you need to build an application or deploy a
 library.  It's easy to get started with and is great if you have a
 pro-forma project; which doesn't need much custom build-scripting.
 
-`lein-tools-deps` teaches Leiningen to work with `:dependencies` from
+`lein-tools-deps` teaches Leiningen to take its `:dependencies` from
 your `deps.edn` files, which means you can get the best of both
 worlds.  You can use `clj` and `deps.edn` to take advantage of
 `deps.edn` sub-projects, located on the local filesystem
@@ -45,8 +45,7 @@ project.
 
 ## Why not use boot instead?
 
-You certainly can do that, and I won't persuade you not to.  Boot is
-arguably a better choice than Leiningen if you need more bespoke build
+Boot is arguably a better choice than Leiningen if you need more bespoke build
 scripting.  However Leiningen projects because of their declarative
 constraints tend to be more uniform and familiar.  Leiningen projects
 are harder to turn into unique snowflakes, which might be better or
@@ -60,6 +59,29 @@ lightweight and just use `clj` and `deps.edn`.
 
 If you want to integrate boot with `tools.deps` you can via @seancorfield's 
 [boot-tools-deps](https://github.com/seancorfield/boot-tools-deps/).
+
+## Why not just use deps.edn?
+
+If you can do this, consider it, and consider not using `lein-tools-deps` at
+all.  Yes, I'm saying maybe you don't need this project; even if it is pretty
+good :-)
+
+`deps.edn` is starting to grow an ecosystem of tools and whilst they're
+not yet mature, and the landscape is frequently changing, with various 
+contenders many existing tools such as the Clojurescript compiler, and 
+figwheel-main have native support for `deps.edn`.  Additionally there are
+new tools such as [depstar](https://github.com/healthfinch/depstar), 
+[pack.alpha](https://github.com/juxt/pack.alpha), [katamari](https://github.com/arrdem/katamari)
+that will work with `deps.edn` and might be able to build that uberjar for you.  
+
+See the [tools.deps Tools](https://github.com/clojure/tools.deps.alpha/wiki/Tools) page
+for a more complete list of available tooling.
+
+`lein-tools-deps` is for those who need or want to keep a foot in both 
+camps.  Perhaps it's suitable as a stop gap solution for an existing 
+leiningen project, or perhaps members of your team are only just 
+getting used to leiningen, and you don't want to confuse them with
+another tool or workflow.
 
 ## Usage
 
