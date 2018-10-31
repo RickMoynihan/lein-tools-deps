@@ -83,6 +83,8 @@ leiningen project, or perhaps members of your team are only just
 getting used to leiningen, and you don't want to confuse them with
 another tool or workflow.
 
+## More [Frequently Asked Questions...](https://github.com/RickMoynihan/lein-tools-deps/wiki/FAQ)
+
 ## Usage
 
 Simply add the following to your plugins and middleware vectors,
