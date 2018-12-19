@@ -123,9 +123,9 @@ You can now delete your `:dependencies` vector from `project.clj`.
 A vector referencing an ordered collection of `deps.edn` files that
 will be used for dependency resolution.  Each file should be either a
 file path string or a special keyword (`:install` `:user` or
-`:project`). The special `:install`, `:user` and `:project` keys refer 
-respectively to the `deps.edn` files defined in the installation, config 
-and project directories for the [clojure tools](https://clojure.org/reference/deps_and_cli#_directories).
+`:project`). The special `:install` and `:user` keys refer to the `deps.edn`
+files defined in the installation and user's home `.clojure` config directories; 
+whilst `:project` refers to a `deps.edn` at the root of your leiningen project.
 
 #### `:clojure-executables`
 
