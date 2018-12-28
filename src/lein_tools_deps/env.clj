@@ -11,15 +11,18 @@
 (defmethod exists? File [file]
   (.exists file))
 
-(def default-clojure-executables ["/usr/local/bin/clojure"])
-
-(defn- clojure-exe
+(defn clojure-exe
+  "Finds the best candidate name for the clojure command. If :clojure-executables
+   is mapped to a sequence of names to search, returns the first name that identifies
+   a valid file name. If no executables are provided, the clojure command will be
+   searched for on the PATH."
   [{:keys [clojure-executables]}]
-  (let [clojure-paths (or clojure-executables default-clojure-executables)
-        exe (->> clojure-paths
-                 (filter exists?)
-                 first)]
-    (or exe (throw (ex-info "Could not find clojure executable" {:tried-paths clojure-paths})))))
+  (if (seq clojure-executables)
+    (let [exe (->> clojure-executables
+                   (filter exists?)
+                   first)]
+      (or exe (throw (ex-info "Could not find clojure executable" {:tried-paths clojure-executables}))))
+    "clojure"))
 
 (defn- scrape-clojure-env
   [{:keys [root] config :lein-tools-deps/config}]
