@@ -11,7 +11,8 @@
 (defmethod exists? File [file]
   (.exists file))
 
-(def default-clojure-executables ["/usr/local/bin/clojure"])
+(def default-clojure-executables ["/usr/local/bin/clojure"
+                                  "/usr/bin/clojure"])
 
 (defn- clojure-exe
   [{:keys [clojure-executables]}]
