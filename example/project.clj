@@ -3,8 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  
-  
+
   :plugins [[lein-tools-deps "0.4.2-SNAPSHOT"]]
 
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
@@ -23,8 +22,8 @@
   ;; The default project will include :deps along with :extra-deps
   ;; defined with the :async alias.
   :lein-tools-deps/config {:config-files [:install :user :project]
-                           :resolve-aliases [:async]} 
-  
+                           :resolve-aliases [:async]}
+
   ;; You can configure lein-tools-deps to :resolve-aliases defined in
   ;; your deps.edn file.  You can do this, as demonstrated here,
   ;; by mapping groups of aliases into leiningen profiles.
@@ -38,9 +37,8 @@
                                      :main foo.resolve-alias}
              :classpath-alias-example {:lein-tools-deps/config {:classpath-aliases [:bench]}
                                        :main foo.classpath-alias}}
- 
+
 
   :main foo.core
-  
-  )
 
+  )
