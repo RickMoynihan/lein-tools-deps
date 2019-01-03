@@ -1,4 +1,4 @@
-(defproject lein-tools-deps "0.4.2-SNAPSHOT"
+(defproject lein-tools-deps "0.4.2"
   :description "Leiningen plugin to load :dependencies from deps.edn instead."
   :url "https://github.com/RickMoynihan/lein-tools-deps"
   :license {:name "Eclipse Public License"
