@@ -1,5 +1,7 @@
 # lein-tools-deps
 
+[![Clojars Project](https://img.shields.io/clojars/v/lein-tools-deps.svg)](https://clojars.org/lein-tools-deps)
+
 A leiningen plugin that lets you
 share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
 `deps.edn` dependencies with your leiningen project build.
@@ -91,7 +93,7 @@ Simply add the following to your plugins and middleware vectors,
 respectively, in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.4.1"]]
+  :plugins [[lein-tools-deps "0.4.3"]]
 ```
 
 ```clojure
