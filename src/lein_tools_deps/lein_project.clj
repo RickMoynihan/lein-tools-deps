@@ -17,6 +17,9 @@
 (defmethod leinize :deps [[_artifact info]]
   (:paths info))
 
+(defmethod leinize :jar [[_artifact info]]
+  (:paths info))
+
 (defn filter-by-manifest [manifest-type tdeps]
   (filter (fn [[_artifact info]]
             (= manifest-type (:deps/manifest info)))
@@ -28,8 +31,8 @@
        (mapv leinize)))
 
 (defn lein-source-paths [project-root merged-deps tdeps]
-  (->> tdeps
-       (filter-by-manifest :deps)
+  (->> (concat (filter-by-manifest :deps tdeps)
+               (filter-by-manifest :jar tdeps))
        (mapv leinize)
        (apply concat)
        (into (:paths merged-deps))
