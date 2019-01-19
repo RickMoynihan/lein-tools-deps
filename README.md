@@ -2,6 +2,8 @@
 
 [![Clojars Project](https://img.shields.io/clojars/v/lein-tools-deps.svg)](https://clojars.org/lein-tools-deps)
 
+[![Build Status](https://travis-ci.org/RickMoynihan/lein-tools-deps.svg?branch=master)](https://travis-ci.org/RickMoynihan/lein-tools-deps)
+
 A leiningen plugin that lets you
 share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
 `deps.edn` dependencies with your leiningen project build.
@@ -191,8 +193,6 @@ You will need the following base dependencies installed:
 ## Project Status
 
 **ALPHA** because `tools.deps` is still `.alpha`.
-
-[![Build Status](https://travis-ci.org/RickMoynihan/lein-tools-deps.svg?branch=master)](https://travis-ci.org/RickMoynihan/lein-tools-deps)
 
 PRs & ideas for future development welcome.
 
