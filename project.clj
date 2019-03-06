@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/tools.deps.alpha "0.6.474"]]
+                 [org.clojure/tools.deps.alpha "0.6.488"]]
   ;:plugins [[thomasa/mranderson "0.4.8"]]
   :eval-in-leiningen true
   :min-lein-version "2.8.1")
