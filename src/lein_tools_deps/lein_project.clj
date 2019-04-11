@@ -1,18 +1,23 @@
 (ns lein-tools-deps.lein-project
   (:require [clojure.tools.deps.alpha :as tools-deps]
+            [clojure.tools.deps.alpha.util.maven :as maven-util]
             [lein-tools-deps.file-attributes :as file-attributes]))
 
 (defmulti leinize (fn [[_dep-key dep-val]]
                     (:deps/manifest dep-val)))
 
 (defmethod leinize :mvn [[artifact info]]
-  ;; Thanks to @seancorfield and boot-tools-deps for this snippet
-  (transduce cat conj [artifact (:mvn/version info)]
-             (select-keys info
-                          [:classifier
-                           :extension
-                           :exclusions
-                           :scope])))
+  (let [[group artifact-name classifier] (maven-util/lib->names artifact)
+        properties (merge
+                     (select-keys info
+                                  [:extension
+                                   :exclusions
+                                   :scope])
+                     (when (some? classifier)
+                       {:classifier classifier}))]
+    ;; Thanks to @seancorfield and boot-tools-deps for this snippet
+    (transduce cat conj [(symbol group artifact-name) (:mvn/version info)]
+               properties)))
 
 (defmethod leinize :deps [[_artifact info]]
   (:paths info))
