@@ -8,6 +8,22 @@ A leiningen plugin that lets you
 share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
 `deps.edn` dependencies with your leiningen project build.
 
+## Do you really want to use this?
+
+`lein-tools-deps` has to square the circle between leiningen & maven's 
+dependency resolution algorithm and that used by tools.deps.  Leiningen 
+and Maven, when there is a conflict always pick the version that is closest
+to the root of the dependency tree; where as `tools.deps` always picks 
+the newest.
+
+In order to square this circle, `lein-tools-deps` resolves all dependencies
+with `tools.deps` and flattens the tree before inserting it into lein's
+`:dependencies` vector.  This guarantees the resolution is the same as
+`tools.deps` would give; however it has the unfortunate effect of flattening
+your libraries dependencies for consumers of your library.  This makes it
+significantly harder for consumers to use `:exclusions` and overrides when
+they get a conflict on a transitive dependency brought in by your library.
+
 ## Why use leiningen and deps.edn?
 
 The Clojure 1.9.0 command line tools bring a host of new benefits to
@@ -95,7 +111,7 @@ Simply add the following to your plugins and middleware vectors,
 respectively, in your `project.clj`:
 
 ```clojure
-  :plugins [[lein-tools-deps "0.4.3"]]
+  :plugins [[lein-tools-deps "0.4.5"]]
 ```
 
 ```clojure
