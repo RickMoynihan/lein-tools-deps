@@ -29,7 +29,10 @@
   (shell/with-sh-dir
     root
     (let [exe (clojure-exe config)
-          {:keys [out exit] :as result} (shell/sh exe "-Sdescribe")]
+          {:keys [out exit] :as result}
+          (if (.startsWith (System/getProperty "os.name") "Windows")
+            (shell/sh "cmd" "/c" exe "-Sdescribe")
+            (shell/sh exe "-Sdescribe"))]
       (if (zero? exit)
         (read-string out)
         (throw (ex-info "Unable to locate Clojure's edn files" result))))))
