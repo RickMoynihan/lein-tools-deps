@@ -89,3 +89,13 @@
     (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn project))))
   (is (thrown? ExceptionInfo (sut/resolve-dependencies-with-deps-edn {}))))
 
+
+(deftest apply-middleware-local-root
+  (let [project (apply-middleware {:root                   (absolute-base-path)
+                                   :lein-tools-deps/config {:aliases      [:test]
+                                                            :config-files ["test-cases/local-root-issue.edn"]}
+                                   :dependencies           [['org.clojure/clojure "1.9.0"]]})]
+    (is (map? project))
+    (is (= #{(str (absolute-base-path) "/test-cases/lib/dt.jar")
+             (str (absolute-base-path) "/src")}
+           (set (:source-paths project))))))
