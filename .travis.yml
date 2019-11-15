@@ -4,7 +4,7 @@ git:
   depth: 5
 
 language: clojure
-lein: 2.8.1
+lein: 2.9.1
 
 before_install:
 - "curl -O https://download.clojure.org/install/linux-install-1.9.0.375.sh"
@@ -16,6 +16,6 @@ script:
   - lein test
   - lein install
   - cd example
-  - lein run 
+  - lein run
   - lein with-profile resolve-alias-example run
   - lein with-profile classpath-alias-example run
