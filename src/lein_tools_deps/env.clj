@@ -24,12 +24,23 @@
       (or exe (throw (ex-info "Could not find clojure executable" {:tried-paths clojure-executables}))))
     "clojure"))
 
+(defn- windows?
+  []
+  (clojure.string/includes? (System/getProperty "os.name") "Windows"))
+
+(defn- cross-platform-sh
+  [exe & args]
+  (if (windows?)
+    (let [{:keys [out] :as result} (apply shell/sh "powershell" "-c" exe args)]
+      (assoc result :out (clojure.string/replace out "\\" "\\\\"))) ; escape backslashes found in windows paths
+    (apply shell/sh exe args)))
+
 (defn- scrape-clojure-env
   [{:keys [root] config :lein-tools-deps/config}]
   (shell/with-sh-dir
     root
     (let [exe (clojure-exe config)
-          {:keys [out exit] :as result} (shell/sh exe "-Sdescribe")]
+          {:keys [out exit] :as result} (cross-platform-sh exe "-Sdescribe")]
       (if (zero? exit)
         (read-string out)
         (throw (ex-info "Unable to locate Clojure's edn files" result))))))
