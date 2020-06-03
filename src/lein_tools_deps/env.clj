@@ -1,6 +1,7 @@
 (ns lein-tools-deps.env
   (:require [clojure.java.shell :as shell]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            clojure.string)
   (:import (java.io File)))
 
 (defmulti exists? class)
