@@ -56,6 +56,11 @@
     (is (= (:source-paths project)
            ["test"]))))
 
+(def expected-path-to-clojure
+  (if (clojure.string/includes? (System/getProperty "os.name") "Windows")
+    "\\path\\to\\my\\clojure"
+    "/path/to/my/clojure"))
+
 (deftest apply-middleware-classpath-overrides
   (let [project (apply-middleware {:root                   (absolute-base-path)
                                    :lein-tools-deps/config {:classpath-aliases [:classpath-overrides-test]
@@ -63,7 +68,7 @@
                                    :dependencies           [['org.clojure/clojure "1.9.0"]]})]
     (is (map? project))
     (is (= (:source-paths project)
-           [(str (absolute-base-path) "/path/to/my/clojure")]))
+           [(str (absolute-base-path) expected-path-to-clojure)]))
     (is (empty? (:dependencies project)))))
 
 (deftest apply-middleware-all-aliases
@@ -73,7 +78,7 @@
                                    :dependencies           [['org.clojure/clojure "1.9.0"]]})]
     (is (map? project))
     (is (= (:source-paths project)
-           [(str (absolute-base-path) "/path/to/my/clojure")]))
+           [(str (absolute-base-path) expected-path-to-clojure)]))
     (is (= (:dependencies project)
            [['criterium/criterium "0.4.4"]]))))
 
