@@ -1,5 +1,7 @@
 # lein-tools-deps
 
+*WARNING: This project is unmaintained and targets a 4y/old version of tools.deps*
+
 [![Clojars Project](https://img.shields.io/clojars/v/lein-tools-deps.svg)](https://clojars.org/lein-tools-deps)
 
 [![Build Status](https://travis-ci.org/RickMoynihan/lein-tools-deps.svg?branch=master)](https://travis-ci.org/RickMoynihan/lein-tools-deps)
@@ -9,6 +11,17 @@ share [tools.deps.alpha](https://github.com/clojure/tools.deps.alpha)
 `deps.edn` dependencies with your leiningen project build.
 
 ## Do you really want to use this?
+
+Probably not, it has been over 4 years since its last update; and is hugely 
+behind on changes in tools.deps.  If you think you need to use this, then
+you should expect to fork it and maintain it going forward, or if you require `git/deps` 
+use [tools.build](https://clojure.org/guides/tools_build)
+instead.  
+
+If you plan on forking this, then you will probably want to update to a more 
+recent version of tools.deps, and I'd also suggest at least fixing 
+[this issue](https://github.com/RickMoynihan/lein-tools-deps/issues/91) if you
+intend to also use it for library development.
 
 `lein-tools-deps` has to square the circle between leiningen & maven's 
 dependency resolution algorithm and that used by tools.deps.  Leiningen 
