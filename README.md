@@ -1,6 +1,6 @@
 # lein-tools-deps
 
-*WARNING: This project is unmaintained and targets a 4y/old version of tools.deps*
+**WARNING: This project is unmaintained and targets a 4y/old version of tools.deps**
 
 [![Clojars Project](https://img.shields.io/clojars/v/lein-tools-deps.svg)](https://clojars.org/lein-tools-deps)
 
