@@ -149,6 +149,10 @@ You can now delete your `:dependencies` vector from `project.clj`.
 > :user :project]`, as of 0.4.0 it changed to the above map
 > based syntax.
 
+### Windows
+
+For windows, Clojure CLI Tools must be installed according to [these instructions](https://github.com/clojure/tools.deps.alpha/wiki/clj-on-Windows).
+
 ### Supported configuration options
 
 #### `:config-files`
